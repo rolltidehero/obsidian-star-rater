@@ -14,6 +14,9 @@ export function sortItems(items: Array<TAbstractFile>, stateSettings: StateSetti
         sortedItems = sortItemsByCreationDateAndPriority(items, 'ascending');
     } else if(stateSettings?.defaultViewOrder === StateViewOrder.ModifiedDate) {
         sortedItems = sortItemsByModifiedDateAndPriority(items, 'descending');
+    } else {
+        // Default if no sort order is set for some reason
+        sortedItems = sortItemsByNameAndPriority(items, 'ascending');
     }
     return sortedItems;
 }
