@@ -20,15 +20,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
             delay={[250, 250]}
             hideOnClick={false}
             duration={[250, 250]}
-            onShow={(instance) => {
-                if(hideTimeout.current) {
-                    clearTimeout(hideTimeout.current);
-                    hideTimeout.current = null;
-                }
-                hideTimeout.current = setTimeout(() => {
-                    instance.hide();
-                }, 2000);
-            }}
         >
             {children}
         </Tippy>

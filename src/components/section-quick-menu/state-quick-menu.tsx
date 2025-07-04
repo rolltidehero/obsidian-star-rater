@@ -35,14 +35,11 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
     const curViewOrder = stateSettings?.defaultViewOrder || StateViewOrder.AliasOrFilename;
     const curPriorityAppearance = getPriorityAppearance(stateSettings);
     
-    const [tooltip, setTooltip] = React.useState<"viewOrder" | "viewMode" | "priorityAppearance" | null>(null);
-
     const cycleViewOrder = () => {
         const currentIndex = viewOrders.indexOf(curViewOrder);
         const nextIndex = (currentIndex + 1) % viewOrders.length;
         const newViewOrder = viewOrders[nextIndex];
         setStateSettings({defaultViewOrder: newViewOrder});
-        setTooltip("viewOrder")
     };
 
     const cycleViewMode = () => {
@@ -50,7 +47,6 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
         const nextIndex = (currentIndex + 1) % viewModes.length;
         const newViewMode = viewModes[nextIndex];
         setStateSettings({defaultViewMode: newViewMode});
-        setTooltip("viewMode")
     };
 
     const cyclePriorityAppearance = () => {
@@ -71,20 +67,7 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
                 defaultViewPriorityGrouping: false,
             });
         }
-        setTooltip("priorityAppearance")
     };
-
-    React.useEffect( () => {
-        if(tooltip) {
-            if(tooltipTimeout) {
-                clearTimeout(tooltipTimeout);
-                tooltipTimeout = null;
-            }
-            tooltipTimeout = setTimeout( () => {
-                setTooltip(null);
-            }, 1000);
-        }
-    }, [tooltip]);
 
     return <>
         <div className="ddc_pb_section-quick-menu">
