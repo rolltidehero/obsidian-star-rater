@@ -29,7 +29,10 @@ export const StatelessSection = (props: React.PropsWithChildren<StatelessSection
     return <>
         <BaseSection
             key = {curStatelessSettings.name}
-            className = "ddc_pb_stateless-section"
+            className = {classNames([
+                "ddc_pb_stateless-section",
+                curStatelessSettings.defaultViewPriorityVisibility && 'ddc_pb_priorities-visible'
+            ])}
             section = {props.section}
         >
 

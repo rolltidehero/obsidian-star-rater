@@ -125,14 +125,17 @@ export const statelessSettingsAtom = atom(
     // Initial value - will be set during initialization
     { name: '', defaultViewMode: 'List' } as StateSettings,
     // Setter - write to both atom and plugin settings
-    (get, set, newValue: StateSettings) => {
+    (get, set, newValue: Partial<StateSettings>) => {
+        const currentStatelessSettings = get(statelessSettingsAtom);
+        const newStatelessSettings = { ...currentStatelessSettings, ...newValue };
+
         // Update the atom value
-        set(statelessSettingsAtom, newValue);
+        set(statelessSettingsAtom, newStatelessSettings);
         
         // Also update plugin settings and save
         try {
             const { plugin } = getGlobals();
-            plugin.settings.stateless = newValue;
+            plugin.settings.stateless = newStatelessSettings;
             plugin.saveSettings();
         } catch (error) {
             console.error('Error updating stateless settings:', error);

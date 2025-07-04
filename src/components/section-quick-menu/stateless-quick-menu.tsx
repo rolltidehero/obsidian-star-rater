@@ -6,6 +6,7 @@ import { Section } from 'src/logic/section-processes';
 import { StateViewMode, StateViewOrder } from 'src/types/types-map';
 import { statelessSettingsAtom } from 'src/logic/stores';
 import { useAtom } from 'jotai';
+import Tooltip from '../tooltip/tooltip';
 
 //////////
 //////////
@@ -26,7 +27,9 @@ export const StatelessQuickMenu = (props: StatelessQuickMenuProps) => {
 
     const curViewMode = statelessSettings?.defaultViewMode || StateViewMode.List;
     const curViewOrder = statelessSettings?.defaultViewOrder || StateViewOrder.AliasOrFilename;
-    const [tooltip, setTooltip] = React.useState<"viewOrder" | "viewMode" | null>(null);
+    const curPriorityAppearance = getPriorityAppearance(statelessSettings);
+
+    const [tooltip, setTooltip] = React.useState<"viewOrder" | "viewMode" | "priorityAppearance" | null>(null);
 
     const cycleViewOrder = () => {
         const currentIndex = viewOrders.indexOf(curViewOrder);
@@ -44,15 +47,34 @@ export const StatelessQuickMenu = (props: StatelessQuickMenuProps) => {
         setTooltip("viewMode");
     };
 
+    const cyclePriorityAppearance = () => {
+        if(!statelessSettings) return;
+        
+        if(!statelessSettings.defaultViewPriorityVisibility) {
+            setStatelessSettings({
+                defaultViewPriorityVisibility: true,
+                defaultViewPriorityGrouping: false
+            });
+        } else if(statelessSettings.defaultViewPriorityVisibility && !statelessSettings.defaultViewPriorityGrouping) {
+            setStatelessSettings({
+                defaultViewPriorityGrouping: true
+            });
+        } else {
+            setStatelessSettings({
+                defaultViewPriorityVisibility: false,
+                defaultViewPriorityGrouping: false,
+            });
+        }
+        setTooltip("priorityAppearance")
+    };
+
     React.useEffect( () => {
         if(tooltip) {
-            tooltipRef.current!.style.display = 'block';
             if(tooltipTimeout) {
                 clearTimeout(tooltipTimeout);
                 tooltipTimeout = null;
             }
             tooltipTimeout = setTimeout( () => {
-                tooltipRef.current!.style.display = 'none';
                 setTooltip(null);
             }, 1000);
         }
@@ -60,34 +82,54 @@ export const StatelessQuickMenu = (props: StatelessQuickMenuProps) => {
 
     return <>
         <div className="ddc_pb_section-quick-menu">
-            <div
-                className="ddc_pb_tooltip"
-                ref={tooltipRef}
-            >
-                {tooltip === "viewOrder" && curViewOrder}
-                {tooltip === "viewMode" && curViewMode}
-            </div>
-            <button
-                className={classNames([
-                    'ddc_pb_quick-menu-button',
-                    'ddc_pb_sort-button',
-                ])}
-                onClick={cycleViewOrder}
-                title={`Cycle sort order`}
-            >
-                <ArrowUpDown className="ddc_pb_icon" />
-            </button>
+            <Tooltip content={curViewOrder}>
+                <button
+                    className={classNames([
+                        'ddc_pb_quick-menu-button',
+                        'ddc_pb_sort-button',
+                    ])}
+                    onClick={cycleViewOrder}
+                >
+                    <ArrowUpDown className="ddc_pb_icon" size={16} />
+                </button>
+            </Tooltip>
             
-            <button
-                className={classNames([
-                    'ddc_pb_quick-menu-button',
-                    'ddc_pb_view-button',
-                ])}
-                onClick={cycleViewMode}
-                title={`Cycle view mode`}
-            >
-                <LayoutGrid className="ddc_pb_icon" />
-            </button>
+            <Tooltip content={curPriorityAppearance}>
+                <button
+                    className={classNames([
+                        'ddc_pb_quick-menu-button',
+                        'ddc_pb_sort-button',
+                    ])}
+                    onClick={cyclePriorityAppearance}
+                >
+                    <ArrowUpDown className="ddc_pb_icon" size={16} />
+                </button>
+            </Tooltip>
+            
+            <Tooltip content={curViewMode}>
+                <button
+                    className={classNames([
+                        'ddc_pb_quick-menu-button',
+                        'ddc_pb_view-button',
+                    ])}
+                    onClick={cycleViewMode}
+                >
+                    <LayoutGrid className="ddc_pb_icon" size={16} />
+                </button>
+            </Tooltip>
         </div>
     </>
-} 
+}
+
+////////////////////
+////////////////////
+
+function getPriorityAppearance(stateSettings: StateSettings) {
+    if(!stateSettings?.defaultViewPriorityVisibility) {
+        return "Hide Priorities";
+    } else if(stateSettings?.defaultViewPriorityVisibility && !stateSettings?.defaultViewPriorityGrouping) {
+        return "Show Priorities";
+    } else {
+        return "Group Priorities";
+    }
+}

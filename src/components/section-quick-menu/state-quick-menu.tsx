@@ -27,7 +27,6 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
     );
     
     const [stateSettings, setStateSettings] = useAtom(stateSettingsAtom);
-    const tooltipRef = React.useRef<HTMLDivElement>(null);
 
     const viewModes = Object.values(StateViewMode);
     const viewOrders = Object.values(StateViewOrder);
@@ -127,7 +126,6 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
         </div>
     </>
 } 
-
 
 ////////////////////
 ////////////////////
