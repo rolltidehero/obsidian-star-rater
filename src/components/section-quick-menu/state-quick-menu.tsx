@@ -75,7 +75,7 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
                     ])}
                     onClick={cycleViewOrder}
                 >
-                    <ArrowUpDown className="ddc_pb_icon" />
+                    <ArrowUpDown className="ddc_pb_icon" size={16} />
                 </button>
             </Tooltip>
             
@@ -87,7 +87,7 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
                     ])}
                     onClick={cycleViewMode}
                 >
-                    <LayoutGrid className="ddc_pb_icon" />
+                    <LayoutGrid className="ddc_pb_icon" size={16} />
                 </button>
             </Tooltip>
         </div>
