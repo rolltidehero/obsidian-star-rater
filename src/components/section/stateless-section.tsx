@@ -3,7 +3,7 @@ import './section.scss';
 import * as React from "react";
 import { Section } from 'src/logic/section-processes';
 import { ListNoteCardSet } from '../list-note-card-set/list-note-card-set';
-import { sortItems, sortItemsByCreationDateAndPriority, sortItemsByModifiedDateAndPriority, sortItemsByName, sortItemsByNameAndPriority } from 'src/utils/sorting';
+import { sortItems, sortItemsByPriorityThenCreationDate, sortItemsByPriorityThenModifiedDate, sortItemsByName, sortItemsByPriorityThenName } from 'src/utils/sorting';
 import { statelessSettingsAtom } from 'src/logic/stores';
 import { useAtom } from 'jotai';
 import { StateViewMode, StateViewOrder } from 'src/types/types-map';

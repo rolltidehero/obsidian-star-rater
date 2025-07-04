@@ -6,7 +6,7 @@ import { DetailedNoteCardSet } from '../detailed-note-card-set/detailed-note-car
 import { SimpleNoteCardSet } from '../simple-note-card-set/simple-note-card-set';
 import { ListNoteCardSet } from '../list-note-card-set/list-note-card-set';
 import { SmallNoteCardSet } from '../small-note-card-set/small-note-card-set';
-import { sortItems, sortItemsByCreationDateAndPriority, sortItemsByModifiedDateAndPriority, sortItemsByNameAndPriority } from 'src/utils/sorting';
+import { sortItems, sortItemsByPriorityThenCreationDate, sortItemsByPriorityThenModifiedDate, sortItemsByPriorityThenName } from 'src/utils/sorting';
 import { registerStateSectionContextMenu } from 'src/context-menus/state-section-context-menu';
 import { CardBrowserContext } from '../card-browser/card-browser';
 import { getGlobals, stateSettingsByNameAtom } from 'src/logic/stores';
@@ -53,7 +53,10 @@ export const StateSection = (props: React.PropsWithChildren<StateSectionProps>) 
         <BaseSection
             ref = {sectionRef}
             key = {curStateSettings.name}
-            className = "ddc_pb_state-section"
+            className = {classNames([
+                "ddc_pb_state-section",
+                curStateSettings.defaultViewPriorityVisibility && 'ddc_pb_priorities-visible'
+            ])}
             section = {props.section}
         >
             <SectionHeader>

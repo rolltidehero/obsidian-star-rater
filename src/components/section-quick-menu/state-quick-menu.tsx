@@ -3,7 +3,7 @@ import * as React from "react";
 import { ArrowUpDown, LayoutGrid } from 'lucide-react';
 import classNames from 'classnames';
 import { Section } from 'src/logic/section-processes';
-import { StateViewMode, StateViewOrder } from 'src/types/types-map';
+import { StateSettings, StateViewMode, StateViewOrder } from 'src/types/types-map';
 import { stateSettingsByNameAtom } from 'src/logic/stores';
 import { useAtom } from 'jotai';
 import Tippy from '@tippyjs/react';
@@ -34,8 +34,9 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
 
     const curViewMode = stateSettings?.defaultViewMode || StateViewMode.List;
     const curViewOrder = stateSettings?.defaultViewOrder || StateViewOrder.AliasOrFilename;
+    const curPriorityAppearance = getPriorityAppearance(stateSettings);
     
-    const [tooltip, setTooltip] = React.useState<"viewOrder" | "viewMode" | null>(null);
+    const [tooltip, setTooltip] = React.useState<"viewOrder" | "viewMode" | "priorityAppearance" | null>(null);
 
     const cycleViewOrder = () => {
         const currentIndex = viewOrders.indexOf(curViewOrder);
@@ -51,6 +52,27 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
         const newViewMode = viewModes[nextIndex];
         setStateSettings({defaultViewMode: newViewMode});
         setTooltip("viewMode")
+    };
+
+    const cyclePriorityAppearance = () => {
+        if(!stateSettings) return;
+        
+        if(!stateSettings.defaultViewPriorityVisibility) {
+            setStateSettings({
+                defaultViewPriorityVisibility: true,
+                defaultViewPriorityGrouping: false
+            });
+        } else if(stateSettings.defaultViewPriorityVisibility && !stateSettings.defaultViewPriorityGrouping) {
+            setStateSettings({
+                defaultViewPriorityGrouping: true
+            });
+        } else {
+            setStateSettings({
+                defaultViewPriorityVisibility: false,
+                defaultViewPriorityGrouping: false,
+            });
+        }
+        setTooltip("priorityAppearance")
     };
 
     React.useEffect( () => {
@@ -79,6 +101,18 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
                 </button>
             </Tooltip>
             
+            <Tooltip content={curPriorityAppearance}>
+                <button
+                    className={classNames([
+                        'ddc_pb_quick-menu-button',
+                        'ddc_pb_sort-button',
+                    ])}
+                    onClick={cyclePriorityAppearance}
+                >
+                    <ArrowUpDown className="ddc_pb_icon" size={16} />
+                </button>
+            </Tooltip>
+            
             <Tooltip content={curViewMode}>
                 <button
                     className={classNames([
@@ -93,3 +127,17 @@ export const StateQuickMenu = (props: StateQuickMenuProps) => {
         </div>
     </>
 } 
+
+
+////////////////////
+////////////////////
+
+function getPriorityAppearance(stateSettings: StateSettings) {
+    if(!stateSettings?.defaultViewPriorityVisibility) {
+        return "Hide Priorities";
+    } else if(stateSettings?.defaultViewPriorityVisibility && !stateSettings?.defaultViewPriorityGrouping) {
+        return "Show Priorities";
+    } else {
+        return "Group Priorities";
+    }
+}

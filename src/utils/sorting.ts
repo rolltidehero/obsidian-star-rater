@@ -8,16 +8,30 @@ import { StateSettings, StateViewOrder } from "src/types/types-map";
 export function sortItems(items: Array<TAbstractFile>, stateSettings: StateSettings): TAbstractFile[] {
     let sortedItems: TAbstractFile[] = [];
 
-    if(stateSettings?.defaultViewOrder === StateViewOrder.AliasOrFilename) {
-        sortedItems = sortItemsByNameAndPriority(items, 'ascending');
-    } else if(stateSettings?.defaultViewOrder === StateViewOrder.CreationDate) {
-        sortedItems = sortItemsByCreationDateAndPriority(items, 'ascending');
-    } else if(stateSettings?.defaultViewOrder === StateViewOrder.ModifiedDate) {
-        sortedItems = sortItemsByModifiedDateAndPriority(items, 'descending');
+    if(stateSettings.defaultViewPriorityGrouping) {
+        if(stateSettings?.defaultViewOrder === StateViewOrder.AliasOrFilename) {
+            sortedItems = sortItemsByPriorityThenName(items, 'ascending');
+        } else if(stateSettings?.defaultViewOrder === StateViewOrder.CreationDate) {
+            sortedItems = sortItemsByPriorityThenCreationDate(items, 'ascending');
+        } else if(stateSettings?.defaultViewOrder === StateViewOrder.ModifiedDate) {
+            sortedItems = sortItemsByPriorityThenModifiedDate(items, 'descending');
+        } else {
+            // Default if no sort order is set for some reason
+            sortedItems = sortItemsByPriorityThenName(items, 'ascending');
+        }
     } else {
-        // Default if no sort order is set for some reason
-        sortedItems = sortItemsByNameAndPriority(items, 'ascending');
+        if(stateSettings?.defaultViewOrder === StateViewOrder.AliasOrFilename) {
+            sortedItems = sortItemsByName(items, 'ascending');
+        } else if(stateSettings?.defaultViewOrder === StateViewOrder.CreationDate) {
+            sortedItems = sortItemsByCreationDate(items, 'ascending');
+        } else if(stateSettings?.defaultViewOrder === StateViewOrder.ModifiedDate) {
+            sortedItems = sortItemsByModifiedDate(items, 'descending');
+        } else {
+            // Default if no sort order is set for some reason
+            sortedItems = sortItemsByName(items, 'ascending');
+        }
     }
+    
     return sortedItems;
 }
 
@@ -113,19 +127,19 @@ export function sortItemsByPriority(items: Array<TAbstractFile>): TAbstractFile[
     return sortedItems;
 }
 
-export function sortItemsByNameAndPriority(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
+export function sortItemsByPriorityThenName(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
     const itemsSortedByName = sortItemsByName(items, direction);
     const itemsSortedByNameAndPriority = sortItemsByPriority(itemsSortedByName);
     return itemsSortedByNameAndPriority;
 }
 
-export function sortItemsByCreationDateAndPriority(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
+export function sortItemsByPriorityThenCreationDate(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
     const itemsSortedByCreationDate = sortItemsByCreationDate(items, direction);
     const itemsSortedByCreationDateAndPriority = sortItemsByPriority(itemsSortedByCreationDate);
     return itemsSortedByCreationDateAndPriority;
 }
 
-export function sortItemsByModifiedDateAndPriority(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
+export function sortItemsByPriorityThenModifiedDate(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
     const itemsSortedByModifiedDate = sortItemsByModifiedDate(items, direction);
     const itemsSortedByModifiedDateAndPriority = sortItemsByPriority(itemsSortedByModifiedDate);
     return itemsSortedByModifiedDateAndPriority;

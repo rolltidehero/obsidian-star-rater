@@ -11,28 +11,6 @@
     overflow: hidden;
     cursor: pointer;
 
-    &.ddc_pb_high-priority {
-        box-shadow: 0 0 10px hsla(var(--accent-h), calc(var(--accent-s) * 0.8), var(--accent-l), 0.4);
-        position: relative;
-        &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 20px;
-            height: 13px;
-            border-top: 1px solid var(--text-accent);
-            border-right: 1px solid var(--text-accent);
-            border-radius: 0 8px 0 0;
-        }
-    }
-
-    &.ddc_pb_low-priority {
-        opacity: 0.5;
-        background: transparent;
-        box-shadow: 0 0 30px rgba(0,0,0,0.6);
-    }
-
     outline: 0 solid rgba(0,0,0,0);
     
     @media (hover: hover) and (pointer: fine) {
@@ -60,6 +38,32 @@
         animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
         animation-fill-mode: backwards;
     }
+}
+
+.ddc_pb_priorities-visible .ddc_pb_note-card-base {
+
+    &.ddc_pb_high-priority {
+        box-shadow: 0 0 10px hsla(var(--accent-h), calc(var(--accent-s) * 0.8), var(--accent-l), 0.4);
+        position: relative;
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 13px;
+            border-top: 1px solid var(--text-accent);
+            border-right: 1px solid var(--text-accent);
+            border-radius: 0 8px 0 0;
+        }
+    }
+
+    &.ddc_pb_low-priority {
+        opacity: 0.5;
+        background: transparent;
+        box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+
 }
 
 @keyframes closing-anim {
