@@ -1,6 +1,6 @@
 import './section-quick-menu.scss';
 import * as React from "react";
-import { ArrowUpDown, LayoutGrid } from 'lucide-react';
+import { ArrowUpDown, LayoutGrid, Ungroup } from 'lucide-react';
 import classNames from 'classnames';
 import { Section } from 'src/logic/section-processes';
 import { StateViewMode, StateViewOrder } from 'src/types/types-map';
@@ -102,7 +102,7 @@ export const StatelessQuickMenu = (props: StatelessQuickMenuProps) => {
                     ])}
                     onClick={cyclePriorityAppearance}
                 >
-                    <ArrowUpDown className="ddc_pb_icon" size={16} />
+                    <Ungroup className="ddc_pb_icon" size={16} />
                 </button>
             </Tooltip>
             
