@@ -11,5 +11,5 @@ fi
 git fetch --prune origin "+refs/tags/*:refs/tags/*"
 
 # Create and push the tag
-git tag "$1-beta"
+git tag "$1"
 git push origin --tags 
