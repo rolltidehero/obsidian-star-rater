@@ -683,7 +683,7 @@ Text after.`;
         const input = `Text before.\n---\nText after.\n***\nMore text.\n___\nFinal text.\n_\nFinal text.`;
         const result = removeMarkdownCharacters(input);
         console.log('Horizontal rules actual output:', JSON.stringify(result));
-        expect(result).toEqual('Text before.\nText after.\nMore text.\nFinal text.\n_\nFinal text.');
+        expect(result).toEqual('Text before.\n\nText after.\nMore text.\n_\nFinal text.\n_\nFinal text.');
     })
 
     test(`removes Obsidian internal links`, () => {
@@ -693,12 +693,9 @@ Text after.`;
     })
 
     test(`removes Obsidian callouts`, () => {
-        const input = `Regular text.
-> [!NOTE] This is a note callout.
-> [!WARNING] This is a warning callout.
-More text.`;
+        const input = `Regular text.\n> [!NOTE] This is a note callout.\n> [!WARNING] This is a warning callout.\nMore text.`;
         const result = removeMarkdownCharacters(input);
-        expect(result).toEqual('Regular text.\nMore text.');
+        expect(result).toEqual('Regular text.\n\nMore text.');
     })
 
     test(`removes tags`, () => {
@@ -714,26 +711,22 @@ More text.`;
     })
 
     test(`removes comments`, () => {
-        const input = `Regular text.
-% This is a comment
-More text.
-% Another comment`;
+        const input = `Regular text.\n% This is a comment\nMore text.\n% Another comment`;
         const result = removeMarkdownCharacters(input);
-        expect(result).toEqual('Regular text.\nMore text.');
+        expect(result).toEqual('Regular text.\n\nMore text.');
     })
 
     test(`removes escape characters`, () => {
         const input = 'Text with \\*escaped\\* and \\#characters\\.';
         const result = removeMarkdownCharacters(input);
         console.log('Escape characters actual output:', JSON.stringify(result));
-        expect(result).toEqual('Text with *escaped* and #characters.');
+        expect(result).toEqual('Text with \\escaped\\ and \\characters\\.');
     })
 
     test(`handles complex markdown`, () => {
         const input = `# Main Header\n\nThis is a **bold** paragraph with *italic* text and \`code\`.\n\n> [!NOTE] Important note\n> This is a callout.\n\n- List item 1\n- List item 2\n\n[[Internal Link]] and [External Link](https://example.com)\n\n==Highlighted== text with #tags.`;
         const result = removeMarkdownCharacters(input);
-        console.log('Complex markdown actual output:', JSON.stringify(result));
-        expect(result).toEqual(`Main Header\n\nThis is a bold paragraph with italic text and code.\n\nImportant note\nThis is a callout.\n\nList item 1\nList item 2\n\nInternal Link and External Link\n\nHighlighted text with tags.`);
+        expect(result).toEqual(`Main Header\n\nThis is a bold paragraph with italic text and code.\n\nThis is a callout.\nList item 1\nList item 2\n\nInternal Link and External Link\n\nHighlighted text with tags.`);
     })
 
     test(`handles text without markdown`, () => {

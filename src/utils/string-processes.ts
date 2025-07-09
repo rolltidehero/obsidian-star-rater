@@ -236,12 +236,16 @@ export function removeLists(text: string) {
     return text.replace(/^[\s]*[-*+]\s+/gm, '').replace(/^[\s]*\d+\.\s+/gm, '');
 }
 export function removeHorizontalRules(text: string) {
-    return text.replace(/^\s*([-*_])\1{2,}\s*$/gm, '');
+    // Remove horizontal rules and clean up extra newlines
+    let result = text.replace(/^\s*([-*_])\1{2,}\s*$/gm, '');
+    result = result.replace(/\n{3,}/g, '\n\n');
+    return result;
 }
 export function removeInternalLinks(text: string) {
     return text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, p1, p2) => (p2 ? p2 : p1));
 }
 export function removeCallouts(text: string) {
+    // Only remove lines that start with '> [!' (callout indicator)
     return text.replace(/^>\s*\[![^\]]*\].*$/gm, '');
 }
 export function removeTags(text: string) {
@@ -251,10 +255,12 @@ export function removeHighlighting(text: string) {
     return text.replace(/==([^=]+)==/g, '$1');
 }
 export function removeComments(text: string) {
-    return text.replace(/^%.*$/gm, '');
+    // Remove lines starting with optional whitespace then '%'
+    return text.replace(/^\s*%.*$/gm, '');
 }
 export function removeEscapeCharacters(text: string) {
-    return text.replace(/\\([\\`*_{}\[\]()#+\-!])/g, '$1');
+    // Remove a single backslash before markdown special characters
+    return text.replace(/\\([`*_{}\[\]()#+\-!])/g, '$1');
 }
 
 export function removeMarkdownCharacters(text: string): string {
@@ -266,18 +272,18 @@ export function removeMarkdownCharacters(text: string): string {
     cleaned = removeInlineCode(cleaned);
     cleaned = removeImages(cleaned);
     cleaned = removeLinks(cleaned);
+    cleaned = removeCallouts(cleaned);
     cleaned = removeBlockquotes(cleaned);
     cleaned = removeLists(cleaned);
     cleaned = removeHorizontalRules(cleaned);
     cleaned = removeInternalLinks(cleaned);
-    cleaned = removeCallouts(cleaned);
     cleaned = removeTags(cleaned);
     cleaned = removeHighlighting(cleaned);
     cleaned = removeComments(cleaned);
     cleaned = removeEscapeCharacters(cleaned);
     // Remove any leftover leading/trailing whitespace from lines
     cleaned = cleaned.replace(/[ \t]+$/gm, '').replace(/^[ \t]+/gm, '');
-    // Remove multiple blank lines
-    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+    // Collapse multiple blank lines (2 or more) into a single blank line
+    cleaned = cleaned.replace(/\n{2,}/g, '\n\n');
     return cleaned.trim();
 }
