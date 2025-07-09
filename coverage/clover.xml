@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1744378676068" clover="3.2.0">
-  <project timestamp="1744378676068" name="All files">
-    <metrics statements="718" coveredstatements="582" conditionals="23" coveredconditionals="12" methods="16" coveredmethods="4" elements="757" coveredelements="598" complexity="0" loc="718" ncloc="718" packages="2" files="6" classes="6"/>
+<coverage generated="1752063935405" clover="3.2.0">
+  <project timestamp="1752063935405" name="All files">
+    <metrics statements="755" coveredstatements="656" conditionals="28" coveredconditionals="17" methods="16" coveredmethods="6" elements="799" coveredelements="679" complexity="0" loc="755" ncloc="755" packages="2" files="7" classes="7"/>
     <package name="types">
-      <metrics statements="564" coveredstatements="513" conditionals="18" coveredconditionals="8" methods="6" coveredmethods="3"/>
+      <metrics statements="601" coveredstatements="587" conditionals="23" coveredconditionals="13" methods="6" coveredmethods="5"/>
       <file name="migration-helpers.ts" path="/Users/daledesilva/Library/CloudStorage/Dropbox/Projects/Obsidian Plugins/Project Browser/Development/obsidian_project-browser/src/types/migration-helpers.ts">
         <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
@@ -15,7 +15,7 @@
         <line num="7" count="35" type="stmt"/>
       </file>
       <file name="plugin-settings-migrations.ts" path="/Users/daledesilva/Library/CloudStorage/Dropbox/Projects/Obsidian Plugins/Project Browser/Development/obsidian_project-browser/src/types/plugin-settings-migrations.ts">
-        <metrics statements="177" coveredstatements="126" conditionals="16" coveredconditionals="6" methods="5" coveredmethods="2"/>
+        <metrics statements="177" coveredstatements="163" conditionals="21" coveredconditionals="11" methods="5" coveredmethods="4"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -46,44 +46,44 @@
         <line num="28" count="1" type="stmt"/>
         <line num="29" count="1" type="stmt"/>
         <line num="30" count="1" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="37" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
-        <line num="40" count="0" type="stmt"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
+        <line num="31" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="48" count="5" type="stmt"/>
+        <line num="49" count="5" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
         <line num="61" count="1" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="63" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="66" count="0" type="stmt"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="68" count="0" type="stmt"/>
+        <line num="62" count="7" type="cond" truecount="1" falsecount="0"/>
+        <line num="63" count="7" type="stmt"/>
+        <line num="64" count="7" type="cond" truecount="1" falsecount="0"/>
+        <line num="65" count="7" type="stmt"/>
+        <line num="66" count="7" type="stmt"/>
+        <line num="67" count="7" type="stmt"/>
+        <line num="68" count="7" type="stmt"/>
         <line num="69" count="1" type="stmt"/>
         <line num="70" count="1" type="stmt"/>
         <line num="71" count="1" type="stmt"/>
@@ -193,6 +193,45 @@
         <line num="175" count="1" type="stmt"/>
         <line num="176" count="1" type="stmt"/>
         <line num="177" count="1" type="stmt"/>
+      </file>
+      <file name="plugin-settings_0_0_4.ts" path="/Users/daledesilva/Library/CloudStorage/Dropbox/Projects/Obsidian Plugins/Project Browser/Development/obsidian_project-browser/src/types/plugin-settings_0_0_4.ts">
+        <metrics statements="36" coveredstatements="36" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
       </file>
       <file name="plugin-settings_0_0_5.ts" path="/Users/daledesilva/Library/CloudStorage/Dropbox/Projects/Obsidian Plugins/Project Browser/Development/obsidian_project-browser/src/types/plugin-settings_0_0_5.ts">
         <metrics statements="92" coveredstatements="92" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
@@ -406,7 +445,7 @@
         <line num="113" count="1" type="stmt"/>
       </file>
       <file name="plugin-settings_0_3_0.ts" path="/Users/daledesilva/Library/CloudStorage/Dropbox/Projects/Obsidian Plugins/Project Browser/Development/obsidian_project-browser/src/types/plugin-settings_0_3_0.ts">
-        <metrics statements="175" coveredstatements="175" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <metrics statements="176" coveredstatements="176" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -582,6 +621,7 @@
         <line num="173" count="1" type="stmt"/>
         <line num="174" count="1" type="stmt"/>
         <line num="175" count="1" type="stmt"/>
+        <line num="176" count="1" type="stmt"/>
       </file>
     </package>
     <package name="utils">

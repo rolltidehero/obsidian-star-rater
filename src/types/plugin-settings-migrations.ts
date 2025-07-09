@@ -28,7 +28,7 @@ export function migrateOutdatedSettings(settings: {settingsVersion: string}): Pl
 ////////////
 ////////////
 
-function migrate_0_0_4_to_0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_0_0_5 {
+export function migrate_0_0_4_to_0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_0_0_5 {
     
     const newSettings: PluginSettings_0_0_5 = {
 
