@@ -31,6 +31,35 @@ export const getFileFrontmatter = (file: TFile): {} | FrontMatterCache => {
     return frontmatter;
 }
 
+/**
+ * Wrapper for processFrontMatter that preserves the file's modified timestamp
+ */
+export const processFrontMatterPreserveTimestamp = async (file: TFile, processor: (frontmatter: any) => void): Promise<void> => {
+    const {plugin} = getGlobals();
+    
+    // Capture the current modified time
+    const origMtime = file.stat.mtime;
+    
+    // Process the frontmatter (this will update the modified time)
+    await plugin.app.fileManager.processFrontMatter(file, processor);
+    
+    // Restore the original modified time
+    // Get a new cache because the file's been modified recently and we have an old reference
+    const fileCache = plugin.app.vault.getAbstractFileByPath(file.path);
+    const content = await plugin.app.vault.read(fileCache);
+    await plugin.app.vault.modify(fileCache, content, {
+        mtime: origMtime,
+    });
+}
+
+/**
+ * Wrapper for processFrontMatter that allows the modified timestamp to be updated
+ */
+export const processFrontMatterUpdateTimestamp = async (file: TFile, processor: (frontmatter: any) => void): Promise<void> => {
+    const {plugin} = getGlobals();
+    await plugin.app.fileManager.processFrontMatter(file, processor);
+}
+
 export const setFileFrontmatter = (file: TFile, newFrontmatter: FrontMatterCache) => {
     const {plugin} = getGlobals();
     plugin.app.fileManager.processFrontMatter(file, (frontmatter) => {
@@ -77,7 +106,7 @@ export const getFileStateName = (file: TFile): null | string => {
 export const setFileState = async (file: TFile, stateSettings: null | StateSettings): Promise<boolean> => {
     try {
         const {plugin} = getGlobals();
-        await plugin.app.fileManager.processFrontMatter(file, (frontmatter) => {
+        await processFrontMatterPreserveTimestamp(file, (frontmatter) => {
             
             if(stateSettings) {
                 if(frontmatter['state'] === stateSettings.name || frontmatter['state'] === `[[${stateSettings.name}]]`) {
@@ -111,7 +140,7 @@ export const setFileState = async (file: TFile, stateSettings: null | StateSetti
 export const setFilePriority = async (file: TFile, prioritySettings: null | PrioritySettings): Promise<boolean> => {
     try {
         const {plugin} = getGlobals();
-        await plugin.app.fileManager.processFrontMatter(file, (frontmatter) => {
+        await processFrontMatterPreserveTimestamp(file, (frontmatter) => {
             if(prioritySettings) {
                 if(frontmatter['priority'] === prioritySettings.name || frontmatter['priority'] === `[[${prioritySettings.name}]]`) {
                     // Clicked on same priority, remove it
