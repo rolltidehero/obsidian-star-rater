@@ -6,7 +6,7 @@ import MyPlugin from "src/main";
 import { ConfirmationModal } from "src/modals/confirmation-modal/confirmation-modal";
 import { folderPathSanitize } from 'src/utils/string-processes';
 import { getGlobals } from 'src/logic/stores';
-import { StateSettings, StateViewMode } from 'src/types/types-map';
+import { StateSettings, StateViewMode, PrioritySettings } from 'src/types/types-map';
 
 /////////
 /////////
@@ -35,6 +35,7 @@ export class MySettingsTab extends PluginSettingTab {
 		insertMoreInfoLinks(containerEl);
 		insertAccessSettings(containerEl, this.plugin, this.display);
 		insertStateSettings(containerEl, this.plugin, this.display);
+		insertPrioritySettings(containerEl, this.plugin, this.display);
 		insertNoteSettings(containerEl, this.plugin, this.display);
 			
 		// TODO: Collapsible change log
@@ -205,6 +206,31 @@ function insertStateSettings(containerEl: HTMLElement, plugin: InkPlugin, refres
 				plugin.saveSettings();
 			});
 		})
+}
+
+function insertPrioritySettings(containerEl: HTMLElement, plugin: InkPlugin, refresh: Function) {
+	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
+	sectionEl.createEl('h2', { text: 'Priorities' });
+	sectionEl.createEl('p', { text: `Files can be given high or low priorities from within the browser panel. This can make notes appear with different styling or as grouped by priority.` });
+
+	// Add toggle for treating priorities as links
+	new Setting(sectionEl)
+		.setClass('ddc_pb_setting')
+		.setName('Treat priorities as links')
+		.setDesc('This will input priorities as internal Obsidian links so that they can be opened and will appear in the graph view as nodes.')
+		.addToggle((toggle) => {
+			// Check if any priority has link enabled to set the initial state
+			const hasLinkEnabled = plugin.settings.priorities.some(priority => priority.link);
+			toggle.setValue(hasLinkEnabled);
+			toggle.onChange(async (value) => {
+				// Update all priorities to have the same link setting
+				plugin.settings.priorities.forEach(priority => {
+					priority.link = value;
+				});
+				await plugin.saveSettings();
+				refresh();
+			});
+		});
 }
 
 function insertNoteSettings(containerEl: HTMLElement, plugin: InkPlugin, refresh: Function) {
