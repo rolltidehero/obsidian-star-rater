@@ -17,7 +17,7 @@
         
         width: 3em;
         height: 3em;
-        padding: 8%;
+        padding: 8% !important; // Important to override Obsidian padding at all media sizes (Otherwise this padding get's overridden on iPad)
         
         background: var(--background-primary);
         border: 1px solid var(--background-modifier-border);
