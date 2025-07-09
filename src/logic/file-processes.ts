@@ -4,6 +4,7 @@ import { CARD_BROWSER_VIEW_TYPE, ProjectCardsView } from "src/views/card-browser
 import { ConfirmationModal } from "src/modals/confirmation-modal/confirmation-modal";
 import { renameAbstractFile } from "src/utils/file-manipulation";
 import { getGlobals } from "./stores";
+import { removeCodeBlocks, removeFrontmatter, removeMarkdownCharacters, removeXmlTags, simplifyWhiteSpace } from "src/utils/string-processes";
 
 /////////
 /////////
@@ -33,34 +34,10 @@ export const getFileExcerpt = async (file: TFile): Promise<null|string> => {
     excerpt = removeFrontmatter(excerpt);
     excerpt = removeCodeBlocks(excerpt);
     excerpt = removeXmlTags(excerpt);
+    excerpt = removeMarkdownCharacters(excerpt);
     excerpt = simplifyWhiteSpace(excerpt);
 
     return excerpt;
-}
-
-// REVIEW: Write tests for this
-export function removeFrontmatter(text: string): string {
-    const sectionRegex = /---([^`]+?)---(\s*)/g;
-    return text.replace(sectionRegex, "");
-}
-
-// REVIEW: Write tests for this
-export function removeCodeBlocks(text: string): string {
-    const sectionRegex = /(\s*)```([^`]+?)```(\s*)/g;
-    return text.replace(sectionRegex, "");
-}
-
-// REVIEW: Write tests for this
-export function removeXmlTags(text: string): string {
-    const xmlTagRegex = /<[^>]*>/g;
-    return text.replace(xmlTagRegex, "");
-}
-
-// REVIEW: Write tests for this
-// REVIEW: This isn't properly working with new lines across code blocks and maybe more
-export function simplifyWhiteSpace(text: string): string {
-    const lineBreakRegex = /(\\n|\\n\s+|\s+\\n)+/;
-    return text.replace(lineBreakRegex, '. ');
 }
 
 export function getScrollOffset(): number {

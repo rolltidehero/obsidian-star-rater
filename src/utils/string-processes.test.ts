@@ -9,7 +9,12 @@ import {
     getNameAndExt, 
     toSentenceCase, 
     parseFilepath, 
-    trimFilenameExt 
+    trimFilenameExt,
+    removeFrontmatter,
+    removeCodeBlocks,
+    removeXmlTags,
+    simplifyWhiteSpace,
+    removeMarkdownCharacters
 } from "./string-processes";
 
 ////////////
@@ -356,6 +361,380 @@ describe(`trimFilenameExt tests`, () => {
     test(`handles dot only`, () => {
         const result = trimFilenameExt('.');
         expect(result).toEqual('');
+    })
+
+});
+
+describe(`removeFrontmatter tests`, () => {
+
+    test(`removes simple frontmatter`, () => {
+        const input = `---
+title: My Note
+tags: [note, important]
+---
+
+This is the content.`;
+        const result = removeFrontmatter(input);
+        expect(result).toEqual('This is the content.');
+    })
+
+    test(`removes frontmatter with complex content`, () => {
+        const input = `---
+title: "Complex Note"
+date: 2023-01-01
+tags: 
+  - note
+  - important
+aliases: [alias1, alias2]
+---
+
+Content here.`;
+        const result = removeFrontmatter(input);
+        expect(result).toEqual('Content here.');
+    })
+
+    test(`handles multiple frontmatter blocks`, () => {
+        const input = `---
+title: First
+---
+
+Some content.
+
+---
+title: Second
+---
+
+More content.`;
+        const result = removeFrontmatter(input);
+        expect(result).toEqual('Some content.\n\nMore content.');
+    })
+
+    test(`handles text without frontmatter`, () => {
+        const input = 'This is just regular content without frontmatter.';
+        const result = removeFrontmatter(input);
+        expect(result).toEqual(input);
+    })
+
+    test(`handles empty string`, () => {
+        const result = removeFrontmatter('');
+        expect(result).toEqual('');
+    })
+
+    test(`handles only frontmatter`, () => {
+        const input = `---
+title: Note
+---`;
+        const result = removeFrontmatter(input);
+        expect(result).toEqual('');
+    })
+
+});
+
+describe(`removeCodeBlocks tests`, () => {
+
+    test(`removes simple code block`, () => {
+        const input = `Some text.
+
+\`\`\`
+const code = "example";
+console.log(code);
+\`\`\`
+
+More text.`;
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual('Some text.\n\nMore text.');
+    })
+
+    test(`removes code block with language specification`, () => {
+        const input = `Text before.
+
+\`\`\`javascript
+const x = 1;
+const y = 2;
+\`\`\`
+
+Text after.`;
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual('Text before.\n\nText after.');
+    })
+
+    test(`removes multiple code blocks`, () => {
+        const input = `Start.
+
+\`\`\`js
+const a = 1;
+\`\`\`
+
+Middle.
+
+\`\`\`python
+def func():
+    pass
+\`\`\`
+
+End.`;
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual('Start.\n\nMiddle.\n\nEnd.');
+    })
+
+    test(`handles text without code blocks`, () => {
+        const input = 'This is just regular text without any code blocks.';
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual(input);
+    })
+
+    test(`handles empty string`, () => {
+        const result = removeCodeBlocks('');
+        expect(result).toEqual('');
+    })
+
+    test(`handles only code block`, () => {
+        const input = `\`\`\`
+const code = "example";
+\`\`\``;
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual('');
+    })
+
+    test(`handles code block with backticks inside`, () => {
+        const input = `Text.
+
+\`\`\`
+const template = \`Hello \${name}\`;
+\`\`\`
+
+More text.`;
+        const result = removeCodeBlocks(input);
+        expect(result).toEqual('Text.\n\nMore text.');
+    })
+
+});
+
+describe(`removeXmlTags tests`, () => {
+
+    test(`removes simple XML tags`, () => {
+        const input = 'Text with <tag>content</tag> inside.';
+        const result = removeXmlTags(input);
+        expect(result).toEqual('Text with content inside.');
+    })
+
+    test(`removes self-closing tags`, () => {
+        const input = 'Text with <br/> and <img src="test.jpg" /> tags.';
+        const result = removeXmlTags(input);
+        expect(result).toEqual('Text with  and  tags.');
+    })
+
+    test(`removes multiple tags`, () => {
+        const input = '<div>Content with <span>nested</span> tags.</div>';
+        const result = removeXmlTags(input);
+        expect(result).toEqual('Content with nested tags.');
+    })
+
+    test(`handles text without XML tags`, () => {
+        const input = 'This is just regular text without any XML tags.';
+        const result = removeXmlTags(input);
+        expect(result).toEqual(input);
+    })
+
+    test(`handles empty string`, () => {
+        const result = removeXmlTags('');
+        expect(result).toEqual('');
+    })
+
+    test(`handles only XML tags`, () => {
+        const input = '<div>Content</div>';
+        const result = removeXmlTags(input);
+        expect(result).toEqual('Content');
+    })
+
+    test(`handles malformed tags`, () => {
+        const input = 'Text with <unclosed> and <tag>content';
+        const result = removeXmlTags(input);
+        expect(result).toEqual('Text with  and content');
+    })
+
+});
+
+describe(`simplifyWhiteSpace tests`, () => {
+
+    test(`replaces escaped newlines with periods`, () => {
+        const input = 'Line 1\\nLine 2\\nLine 3';
+        const result = simplifyWhiteSpace(input);
+        expect(result).toEqual('Line 1. Line 2. Line 3');
+    })
+
+    test(`handles escaped newlines with spaces`, () => {
+        const input = 'Line 1\\n  Line 2  \\n  Line 3';
+        const result = simplifyWhiteSpace(input);
+        expect(result).toEqual('Line 1. Line 2. Line 3');
+    })
+
+    test(`handles multiple consecutive escaped newlines`, () => {
+        const input = 'Line 1\\n\\n\\nLine 2';
+        const result = simplifyWhiteSpace(input);
+        expect(result).toEqual('Line 1. Line 2');
+    })
+
+    test(`handles text without escaped newlines`, () => {
+        const input = 'This is just regular text without escaped newlines.';
+        const result = simplifyWhiteSpace(input);
+        expect(result).toEqual(input);
+    })
+
+    test(`handles empty string`, () => {
+        const result = simplifyWhiteSpace('');
+        expect(result).toEqual('');
+    })
+
+    test(`handles only escaped newlines`, () => {
+        const input = '\\n\\n\\n';
+        const result = simplifyWhiteSpace(input);
+        expect(result).toEqual('. ');
+    })
+
+});
+
+describe(`removeMarkdownCharacters tests`, () => {
+
+    test(`removes headers`, () => {
+        const input = `# Header 1
+## Header 2
+### Header 3
+Content here.`;
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Header 1\nHeader 2\nHeader 3\nContent here.');
+    })
+
+    test(`removes bold formatting`, () => {
+        const input = 'Text with **bold** and __bold__ formatting.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with bold and bold formatting.');
+    })
+
+    test(`removes italic formatting`, () => {
+        const input = 'Text with *italic* and _italic_ formatting.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with italic and italic formatting.');
+    })
+
+    test(`removes strikethrough`, () => {
+        const input = 'Text with ~~strikethrough~~ formatting.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with strikethrough formatting.');
+    })
+
+    test(`removes inline code`, () => {
+        const input = 'Text with `code` formatting.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with code formatting.');
+    })
+
+    test(`removes links`, () => {
+        const input = 'Text with [link text](https://example.com) and [another link](https://test.com).';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with link text and another link.');
+    })
+
+    test(`removes images`, () => {
+        const input = 'Text with ![alt text](image.jpg) image.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with alt text image.');
+    })
+
+    test(`removes blockquotes`, () => {
+        const input = `Regular text.
+> This is a blockquote.
+> Another line.
+More text.`;
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Regular text.\nThis is a blockquote.\nAnother line.\nMore text.');
+    })
+
+    test(`removes lists`, () => {
+        const input = `Text before.
+- List item 1
+- List item 2
+* Another list item
++ Yet another item
+1. Numbered item
+2. Another numbered item
+Text after.`;
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text before.\nList item 1\nList item 2\nAnother list item\nYet another item\nNumbered item\nAnother numbered item\nText after.');
+    })
+
+    test(`removes horizontal rules`, () => {
+        const input = `Text before.\n---\nText after.\n***\nMore text.\n___\nFinal text.\n_\nFinal text.`;
+        const result = removeMarkdownCharacters(input);
+        console.log('Horizontal rules actual output:', JSON.stringify(result));
+        expect(result).toEqual('Text before.\nText after.\nMore text.\nFinal text.\n_\nFinal text.');
+    })
+
+    test(`removes Obsidian internal links`, () => {
+        const input = 'Text with [[filename]] and [[filename|display text]] links.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with filename and display text links.');
+    })
+
+    test(`removes Obsidian callouts`, () => {
+        const input = `Regular text.
+> [!NOTE] This is a note callout.
+> [!WARNING] This is a warning callout.
+More text.`;
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Regular text.\nMore text.');
+    })
+
+    test(`removes tags`, () => {
+        const input = 'Text with #tag1 and #another-tag tags.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with tag1 and another-tag tags.');
+    })
+
+    test(`removes highlighting`, () => {
+        const input = 'Text with ==highlighted== content.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with highlighted content.');
+    })
+
+    test(`removes comments`, () => {
+        const input = `Regular text.
+% This is a comment
+More text.
+% Another comment`;
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Regular text.\nMore text.');
+    })
+
+    test(`removes escape characters`, () => {
+        const input = 'Text with \\*escaped\\* and \\#characters\\.';
+        const result = removeMarkdownCharacters(input);
+        console.log('Escape characters actual output:', JSON.stringify(result));
+        expect(result).toEqual('Text with *escaped* and #characters.');
+    })
+
+    test(`handles complex markdown`, () => {
+        const input = `# Main Header\n\nThis is a **bold** paragraph with *italic* text and \`code\`.\n\n> [!NOTE] Important note\n> This is a callout.\n\n- List item 1\n- List item 2\n\n[[Internal Link]] and [External Link](https://example.com)\n\n==Highlighted== text with #tags.`;
+        const result = removeMarkdownCharacters(input);
+        console.log('Complex markdown actual output:', JSON.stringify(result));
+        expect(result).toEqual(`Main Header\n\nThis is a bold paragraph with italic text and code.\n\nImportant note\nThis is a callout.\n\nList item 1\nList item 2\n\nInternal Link and External Link\n\nHighlighted text with tags.`);
+    })
+
+    test(`handles text without markdown`, () => {
+        const input = 'This is just plain text without any markdown formatting.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual(input);
+    })
+
+    test(`handles empty string`, () => {
+        const result = removeMarkdownCharacters('');
+        expect(result).toEqual('');
+    })
+
+    test(`handles nested formatting`, () => {
+        const input = 'Text with **bold *italic* text** and `code with **formatting**`.';
+        const result = removeMarkdownCharacters(input);
+        expect(result).toEqual('Text with bold italic text and code with formatting.');
     })
 
 });

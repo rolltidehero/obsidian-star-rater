@@ -159,3 +159,96 @@ export const trimFilenameExt = (filename: string): string => {
     }
     return str.join('.');
 }
+
+
+
+
+// REVIEW: Write tests for this
+export function removeFrontmatter(text: string): string {
+    const sectionRegex = /---([^`]+?)---(\s*)/g;
+    return text.replace(sectionRegex, "");
+}
+
+// REVIEW: Write tests for this
+export function removeCodeBlocks(text: string): string {
+    // Remove code blocks (``` ... ```), including multiline
+    // Replace with a single newline to preserve spacing
+    let result = text.replace(/(^|\n)```[\s\S]*?```(\n|$)/g, '\n');
+    // Clean up multiple newlines but preserve double newlines
+    result = result.replace(/\n{3,}/g, '\n\n');
+    return result.trim();
+}
+
+// REVIEW: Write tests for this
+export function removeXmlTags(text: string): string {
+    const xmlTagRegex = /<[^>]*>/g;
+    return text.replace(xmlTagRegex, "");
+}
+
+// REVIEW: Write tests for this
+// REVIEW: This isn't properly working with new lines across code blocks and maybe more
+export function simplifyWhiteSpace(text: string): string {
+    // Replace escaped newlines (\n) and surrounding whitespace with ". "
+    let result = text.replace(/(\\n\s*)+/g, '. ');
+    // Remove extra spaces before/after periods
+    result = result.replace(/\s*\.\s*/g, '. ');
+    // Collapse multiple spaces
+    result = result.replace(/ {2,}/g, ' ');
+    // Ensure only a single ". " for multiple newlines
+    result = result.replace(/(\.\s*){2,}/g, '. ');
+    // If the result is just a period, return '. '
+    if (result.trim() === '.') {
+        return '. ';
+    }
+    // Ensure we have a space after the period if it's at the end
+    if (result.endsWith('.')) {
+        result = result + ' ';
+    }
+    return result.trim();
+}
+
+// REVIEW: Write tests for this
+export function removeMarkdownCharacters(text: string): string {
+    let cleaned = text
+        // Headers (# ## ### etc.)
+        .replace(/^#{1,6}\s+/gm, '')
+        // Bold (**text** or __text__)
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/__(.*?)__/g, '$1')
+        // Italic (*text* or _text_)
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/_(.*?)_/g, '$1')
+        // Strikethrough (~~text~~)
+        .replace(/~~(.*?)~~/g, '$1')
+        // Inline code (`code`)
+        .replace(/`([^`]+)`/g, '$1')
+        // Images ![alt](url) - fix to remove the ! by capturing it
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+        // Links [text](url)
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        // Blockquotes (> text)
+        .replace(/^>\s+/gm, '')
+        // Lists (- item or * item or 1. item)
+        .replace(/^[\s]*[-*+]\s+/gm, '')
+        .replace(/^[\s]*\d+\.\s+/gm, '')
+        // Horizontal rules (---, ***, ___ on their own line) - match three or more, not a single underscore
+        .replace(/^\s*([-*_])\1{2,}\s*$/gm, '')
+        // Obsidian-specific markdown
+        // Internal links [[filename]] or [[filename|display text]]
+        .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, p1, p2) => (p2 ? p2 : p1))
+        // Callouts (> [!NOTE] or > [!WARNING] etc.) - match lines starting with '> [!' or '[!'
+        .replace(/^(>\s*)?\[![^\]]*\].*$/gm, '')
+        // Tags (#tag)
+        .replace(/#([^\s#]+)/g, '$1')
+        // Highlighting (==text==)
+        .replace(/==([^=]+)==/g, '$1')
+        // Comments (% comment)
+        .replace(/^%.*$/gm, '')
+        // Escape characters (\\*, \\# etc.) - remove one or more backslashes before markdown special chars
+        .replace(/\\+([\\`*_{}\[\]()#+\-!])/g, '$1');
+    // Remove any leftover leading/trailing whitespace from lines
+    cleaned = cleaned.replace(/[ \t]+$/gm, '').replace(/^[ \t]+/gm, '');
+    // Remove multiple blank lines
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+    return cleaned.trim();
+}
