@@ -32,6 +32,7 @@ export const getFileExcerpt = async (file: TFile): Promise<null|string> => {
     excerpt = await v.cachedRead(file);
     excerpt = removeFrontmatter(excerpt);
     excerpt = removeCodeBlocks(excerpt);
+    excerpt = removeXmlTags(excerpt);
     excerpt = simplifyWhiteSpace(excerpt);
 
     return excerpt;
@@ -47,6 +48,12 @@ export function removeFrontmatter(text: string): string {
 export function removeCodeBlocks(text: string): string {
     const sectionRegex = /(\s*)```([^`]+?)```(\s*)/g;
     return text.replace(sectionRegex, "");
+}
+
+// REVIEW: Write tests for this
+export function removeXmlTags(text: string): string {
+    const xmlTagRegex = /<[^>]*>/g;
+    return text.replace(xmlTagRegex, "");
 }
 
 // REVIEW: Write tests for this
