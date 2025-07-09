@@ -131,16 +131,20 @@ export function toSentenceCase(str: string) {
 export function parseFilepath(filepath: string): { folderpath: string; basename: string; ext: string; } {
     const segments = filepath.split('/');
 
-    // Handle root directory (/)
-    let folderpath = segments[0] === '' ? '/' : '';
-
     // Extract filename and extension
     const filename = segments.pop() || '';
     const extIndex = filename.lastIndexOf('.');
     const ext = extIndex >= 0 ? filename.slice(extIndex) : '';
     const basename = extIndex >= 0 ? filename.slice(0, extIndex) : filename;
 
-    folderpath = segments.join('/');
+    // Handle folderpath - check if it's root directory first
+    let folderpath = '';
+    if (segments.length === 1 && segments[0] === '') {
+        // Root directory case
+        folderpath = '/';
+    } else {
+        folderpath = segments.join('/');
+    }
 
     return { folderpath, basename, ext: ext.startsWith('.') ? ext.slice(1) : ext };
 }
@@ -149,6 +153,9 @@ export function parseFilepath(filepath: string): { folderpath: string; basename:
 
 export const trimFilenameExt = (filename: string): string => {
     const str = filename.split('.')
-    str.pop();
+    // Only remove the last element if there's more than one element (i.e., there's an extension)
+    if (str.length > 1) {
+        str.pop();
+    }
     return str.join('.');
 }
