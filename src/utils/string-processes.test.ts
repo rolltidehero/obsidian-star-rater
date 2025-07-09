@@ -14,7 +14,23 @@ import {
     removeCodeBlocks,
     removeXmlTags,
     simplifyWhiteSpace,
-    removeMarkdownCharacters
+    removeMarkdownCharacters,
+    removeHeaders,
+    removeBold,
+    removeItalic,
+    removeStrikethrough,
+    removeInlineCode,
+    removeImages,
+    removeLinks,
+    removeBlockquotes,
+    removeLists,
+    removeHorizontalRules,
+    removeInternalLinks,
+    removeCallouts,
+    removeTags,
+    removeHighlighting,
+    removeComments,
+    removeEscapeCharacters
 } from "./string-processes";
 
 ////////////
@@ -737,4 +753,136 @@ More text.
         expect(result).toEqual('Text with bold italic text and code with formatting.');
     })
 
+});
+
+describe('removeHeaders', () => {
+    test('removes markdown headers', () => {
+        expect(removeHeaders('# Header 1\n## Header 2')).toBe('Header 1\nHeader 2');
+    });
+    test('does not remove non-header lines', () => {
+        expect(removeHeaders('No header here')).toBe('No header here');
+    });
+});
+
+describe('removeBold', () => {
+    test('removes **bold**', () => {
+        expect(removeBold('This is **bold** text')).toBe('This is bold text');
+    });
+    test('removes __bold__', () => {
+        expect(removeBold('This is __bold__ text')).toBe('This is bold text');
+    });
+});
+
+describe('removeItalic', () => {
+    test('removes *italic*', () => {
+        expect(removeItalic('This is *italic* text')).toBe('This is italic text');
+    });
+    test('removes _italic_', () => {
+        expect(removeItalic('This is _italic_ text')).toBe('This is italic text');
+    });
+});
+
+describe('removeStrikethrough', () => {
+    test('removes ~~strike~~', () => {
+        expect(removeStrikethrough('This is ~~strike~~ text')).toBe('This is strike text');
+    });
+});
+
+describe('removeInlineCode', () => {
+    test('removes `code`', () => {
+        expect(removeInlineCode('This is `code`')).toBe('This is code');
+    });
+});
+
+describe('removeImages', () => {
+    test('removes images', () => {
+        expect(removeImages('![alt](url)')).toBe('alt');
+    });
+    test('removes images in text', () => {
+        expect(removeImages('Text ![alt](url) more')).toBe('Text alt more');
+    });
+});
+
+describe('removeLinks', () => {
+    test('removes links', () => {
+        expect(removeLinks('[text](url)')).toBe('text');
+    });
+    test('removes links in text', () => {
+        expect(removeLinks('Text [text](url) more')).toBe('Text text more');
+    });
+});
+
+describe('removeBlockquotes', () => {
+    test('removes > at start of line', () => {
+        expect(removeBlockquotes('> quote')).toBe('quote');
+    });
+    test('does not remove > in middle', () => {
+        expect(removeBlockquotes('a > b')).toBe('a > b');
+    });
+});
+
+describe('removeLists', () => {
+    test('removes - list', () => {
+        expect(removeLists('- item')).toBe('item');
+    });
+    test('removes 1. list', () => {
+        expect(removeLists('1. item')).toBe('item');
+    });
+});
+
+describe('removeHorizontalRules', () => {
+    test('removes ---', () => {
+        expect(removeHorizontalRules('---')).toBe('');
+    });
+    test('does not remove _', () => {
+        expect(removeHorizontalRules('_')).toBe('_');
+    });
+});
+
+describe('removeInternalLinks', () => {
+    test('removes [[link]]', () => {
+        expect(removeInternalLinks('[[file]]')).toBe('file');
+    });
+    test('removes [[file|display]]', () => {
+        expect(removeInternalLinks('[[file|display]]')).toBe('display');
+    });
+});
+
+describe('removeCallouts', () => {
+    test('removes callout lines', () => {
+        expect(removeCallouts('> [!NOTE] This is a note')).toBe('');
+    });
+    test('does not remove normal lines', () => {
+        expect(removeCallouts('Just a line')).toBe('Just a line');
+    });
+});
+
+describe('removeTags', () => {
+    test('removes #tag', () => {
+        expect(removeTags('This is #tag')).toBe('This is tag');
+    });
+});
+
+describe('removeHighlighting', () => {
+    test('removes ==highlight==', () => {
+        expect(removeHighlighting('==highlight==')).toBe('highlight');
+    });
+});
+
+describe('removeComments', () => {
+    test('removes % comment lines', () => {
+        expect(removeComments('% comment')).toBe('');
+    });
+    test('does not remove normal lines', () => {
+        expect(removeComments('Just a line')).toBe('Just a line');
+    });
+});
+
+describe('removeEscapeCharacters', () => {
+    test('removes backslash before *', () => {
+        expect(removeEscapeCharacters('This is \\*star\\*')).toBe('This is *star*');
+    });
+    test('removes backslash before #', () => {
+        expect(removeEscapeCharacters('This is \\#hash')).toBe('This is #hash');
+    });
 });

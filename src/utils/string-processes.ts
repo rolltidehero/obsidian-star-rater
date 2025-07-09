@@ -207,45 +207,74 @@ export function simplifyWhiteSpace(text: string): string {
     return result.trim();
 }
 
-// REVIEW: Write tests for this
+// MARKDOWN REMOVAL HELPERS
+export function removeHeaders(text: string) {
+    return text.replace(/^#{1,6}\s+/gm, '');
+}
+export function removeBold(text: string) {
+    return text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1');
+}
+export function removeItalic(text: string) {
+    return text.replace(/\*(.*?)\*/g, '$1').replace(/_(.*?)_/g, '$1');
+}
+export function removeStrikethrough(text: string) {
+    return text.replace(/~~(.*?)~~/g, '$1');
+}
+export function removeInlineCode(text: string) {
+    return text.replace(/`([^`]+)`/g, '$1');
+}
+export function removeImages(text: string) {
+    return text.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
+}
+export function removeLinks(text: string) {
+    return text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+}
+export function removeBlockquotes(text: string) {
+    return text.replace(/^>\s+/gm, '');
+}
+export function removeLists(text: string) {
+    return text.replace(/^[\s]*[-*+]\s+/gm, '').replace(/^[\s]*\d+\.\s+/gm, '');
+}
+export function removeHorizontalRules(text: string) {
+    return text.replace(/^\s*([-*_])\1{2,}\s*$/gm, '');
+}
+export function removeInternalLinks(text: string) {
+    return text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, p1, p2) => (p2 ? p2 : p1));
+}
+export function removeCallouts(text: string) {
+    return text.replace(/^>\s*\[![^\]]*\].*$/gm, '');
+}
+export function removeTags(text: string) {
+    return text.replace(/#([^\s#]+)/g, '$1');
+}
+export function removeHighlighting(text: string) {
+    return text.replace(/==([^=]+)==/g, '$1');
+}
+export function removeComments(text: string) {
+    return text.replace(/^%.*$/gm, '');
+}
+export function removeEscapeCharacters(text: string) {
+    return text.replace(/\\([\\`*_{}\[\]()#+\-!])/g, '$1');
+}
+
 export function removeMarkdownCharacters(text: string): string {
-    let cleaned = text
-        // Headers (# ## ### etc.)
-        .replace(/^#{1,6}\s+/gm, '')
-        // Bold (**text** or __text__)
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .replace(/__(.*?)__/g, '$1')
-        // Italic (*text* or _text_)
-        .replace(/\*(.*?)\*/g, '$1')
-        .replace(/_(.*?)_/g, '$1')
-        // Strikethrough (~~text~~)
-        .replace(/~~(.*?)~~/g, '$1')
-        // Inline code (`code`)
-        .replace(/`([^`]+)`/g, '$1')
-        // Images ![alt](url) - fix to remove the ! by capturing it
-        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
-        // Links [text](url)
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        // Blockquotes (> text)
-        .replace(/^>\s+/gm, '')
-        // Lists (- item or * item or 1. item)
-        .replace(/^[\s]*[-*+]\s+/gm, '')
-        .replace(/^[\s]*\d+\.\s+/gm, '')
-        // Horizontal rules (---, ***, ___ on their own line) - match three or more, not a single underscore
-        .replace(/^\s*([-*_])\1{2,}\s*$/gm, '')
-        // Obsidian-specific markdown
-        // Internal links [[filename]] or [[filename|display text]]
-        .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, p1, p2) => (p2 ? p2 : p1))
-        // Callouts (> [!NOTE] or > [!WARNING] etc.) - match lines starting with '> [!' or '[!'
-        .replace(/^(>\s*)?\[![^\]]*\].*$/gm, '')
-        // Tags (#tag)
-        .replace(/#([^\s#]+)/g, '$1')
-        // Highlighting (==text==)
-        .replace(/==([^=]+)==/g, '$1')
-        // Comments (% comment)
-        .replace(/^%.*$/gm, '')
-        // Escape characters (\\*, \\# etc.) - remove one or more backslashes before markdown special chars
-        .replace(/\\+([\\`*_{}\[\]()#+\-!])/g, '$1');
+    let cleaned = text;
+    cleaned = removeHeaders(cleaned);
+    cleaned = removeBold(cleaned);
+    cleaned = removeItalic(cleaned);
+    cleaned = removeStrikethrough(cleaned);
+    cleaned = removeInlineCode(cleaned);
+    cleaned = removeImages(cleaned);
+    cleaned = removeLinks(cleaned);
+    cleaned = removeBlockquotes(cleaned);
+    cleaned = removeLists(cleaned);
+    cleaned = removeHorizontalRules(cleaned);
+    cleaned = removeInternalLinks(cleaned);
+    cleaned = removeCallouts(cleaned);
+    cleaned = removeTags(cleaned);
+    cleaned = removeHighlighting(cleaned);
+    cleaned = removeComments(cleaned);
+    cleaned = removeEscapeCharacters(cleaned);
     // Remove any leftover leading/trailing whitespace from lines
     cleaned = cleaned.replace(/[ \t]+$/gm, '').replace(/^[ \t]+/gm, '');
     // Remove multiple blank lines
