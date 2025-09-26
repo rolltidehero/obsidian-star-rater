@@ -1,0 +1,23 @@
+import { describe, expect, test } from "@jest/globals";
+import { migrateOutdatedSettings } from "./plugin-settings-migrations";
+import { DEFAULT_PLUGIN_SETTINGS_0_0_5 } from "./plugin-settings_0_0_5";
+
+describe("plugin settings migrations (wrapper)", () => {
+  test("migrateOutdatedSettings chains from 0.0.5 and sets expected fields", () => {
+    const old = { ...DEFAULT_PLUGIN_SETTINGS_0_0_5, settingsVersion: "0.0.5" } as any;
+    const res = migrateOutdatedSettings(old);
+    // Verify version bumped
+    expect(typeof res.settingsVersion).toBe("string");
+    // Verify newly introduced fields in later versions exist
+    expect(res).toHaveProperty("useAliases");
+    expect(res).toHaveProperty("loopStatesWhenCycling");
+    // Check stateless section remaps to new keys
+    expect(res).toHaveProperty(["stateless", "defaultViewMode"]);
+    expect(res).toHaveProperty(["stateless", "defaultViewOrder"]);
+    // Ensure states arrays preserved and mapped
+    expect(Array.isArray(res.states.visible)).toBe(true);
+    expect(Array.isArray(res.states.hidden)).toBe(true);
+  });
+});
+
+
