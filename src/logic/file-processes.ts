@@ -62,9 +62,7 @@ export function deleteFolderImmediately(folder: TFolder) {
 }
 
 export function deleteFileWithConfirmation(file: TFile) {
-    const {plugin} = getGlobals();
     new ConfirmationModal({
-        plugin,
         title: 'Delete note?',
         message: `Are you sure you'd like to delete "${file.name}" ?`,
         confirmLabel: 'Delete note',
@@ -76,9 +74,7 @@ export function deleteFileWithConfirmation(file: TFile) {
 }
 
 export function deleteFolderWithConfirmation(folder: TFolder) {
-    const {plugin} = getGlobals();
     new ConfirmationModal({
-        plugin,
         title: 'Delete folder & contents?',
         message: `Are you sure you'd like to delete "${folder.name}" and it's contents?`,
         confirmLabel: 'Delete folder & contents',
