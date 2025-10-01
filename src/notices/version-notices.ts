@@ -24,23 +24,27 @@ function showLatestChanges() {
     const {plugin} = getGlobals()
 
     const noticeBody = createNoticeTemplate(1,3);
-    noticeBody.createEl('h1').setText(`Changes in Project Browser v0.3.1`);
+    noticeBody.createEl('h1').setText(`Changes in Project Browser v0.3.2`);
     // noticeBody.createEl('p').setText(`Added:`);
     const listEl = noticeBody.createEl('ul');
-    // listEl.createEl('li').setText(`Added priority context menu in browse view (Right click or hold on a note).`);
+    listEl.createEl('li').setText(`Added priority context menu in browse view (Right click or hold on a note).`);
     listEl.createEl('li').setText(`Added quick menu to sections in browse view (Click on section blank area on touch devices).`);
     listEl.createEl('li').setText(`Added ability to change section ordering on the fly.`);
     listEl.createEl('li').setText(`Added ability to change priority grouping and visibility on the fly.`);
     listEl.createEl('li').setText(`Added ability to change card display type on the fly.`);
     listEl.createEl('li').setText(`Added ability to treat priorities as links (Changing this won't change existing priorities).`);
     listEl.createEl('li').setText(`Markdown is now stripped from preview text when in detailed card view.`);
-    // listEl.createEl('li').setText(`Fixed initial state not being applied when new file is created within a state section.`);
-    // listEl.createEl('li').setText(`Fixed errors in styling of notices.`);
+    listEl.createEl('li').setText(`Fixed initial state not being applied when new file is created within a state section.`);
+    listEl.createEl('li').setText(`Fixed errors in styling of notices.`);
     listEl.createEl('li').setText(`Fixed error where changing state or priority would refresh the modified time stamp. Now it preserves the previous timestamp.`);
-    
+        
     const link = noticeBody.createEl('a');
     link.setAttribute('href', 'https://youtu.be/ubZpS8JUWUk')
     link.setText(`View release video`);
+
+    noticeBody.createEl('h2').setText('Note...');
+    noticeBody.createEl('p').appendText('Multi-page projects are coming in version 0.4!');
+
     // Prevent clicking link from closing notice
     link.onClickEvent( e => e.stopPropagation())
         
