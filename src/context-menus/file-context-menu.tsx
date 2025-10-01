@@ -1,10 +1,10 @@
 import { Menu, Notice, TFile } from "obsidian";
 import { openFileInBackgroundTab, openFileInSameLeaf } from "src/logic/file-access-processes";
 import { deleteFileWithConfirmation, renameFileOrFolderInPlace } from "src/logic/file-processes";
-import { getFileStateSettings, setFileState } from "src/logic/frontmatter-processes";
+import { getFileStateSettings, getFilePrioritySettings, setFilePriority, setFileState } from "src/logic/frontmatter-processes";
 import { getGlobals } from "src/logic/stores";
 import { RenameFileModal } from "src/modals/rename-file-modal/rename-file-modal";
-import { PluginStateSettings_0_1_0 } from "src/types/plugin-settings0_1_0";
+import { PrioritySettings, StateSettings } from "src/types/types-map";
 
 ////////
 ////////
@@ -16,10 +16,10 @@ interface registerFileContextMenuProps {
 }
 
 export function registerFileContextMenu(props: registerFileContextMenuProps) {
-    const {plugin} = getGlobals();
-    const fileRawState = getFileStateSettings(props.file);
+    const {plugin} = getGlobals();    
     const folder = props.file.parent;
 
+    const priorities = JSON.parse(JSON.stringify(plugin.settings.priorities));
     const visibleStates = JSON.parse(JSON.stringify(plugin.settings.states.visible));
     visibleStates.reverse();
     const hiddenStates = JSON.parse(JSON.stringify(plugin.settings.states.hidden));
@@ -41,10 +41,23 @@ export function registerFileContextMenu(props: registerFileContextMenuProps) {
             });
         });
         menu.addSeparator();
-        visibleStates.forEach( (stateSettings: PluginStateSettings_0_1_0) => {
+        priorities.forEach( (prioritySettings: PrioritySettings) => {
             menu.addItem((item) => {
+                const fileRawPriority = getFilePrioritySettings(props.file);
+                item.setTitle(prioritySettings.name);
+                if(prioritySettings.name === fileRawPriority?.name) item.setChecked(true);
+                item.onClick(() => {
+                    setFilePriority(props.file, prioritySettings);
+                    props.onFileChange();
+                });
+            });
+        })
+        menu.addSeparator();
+        visibleStates.forEach( (stateSettings: StateSettings) => {
+            menu.addItem((item) => {
+                const fileRawState = getFileStateSettings(props.file);
                 item.setTitle(stateSettings.name);
-                if(stateSettings.name === fileRawState) item.setChecked(true);
+                if(stateSettings.name === fileRawState?.name) item.setChecked(true);
                 item.onClick(() => {
                     setFileState(props.file, stateSettings);
                     props.onFileChange();
@@ -52,10 +65,11 @@ export function registerFileContextMenu(props: registerFileContextMenuProps) {
             });
         })
         menu.addSeparator();
-        hiddenStates.forEach( (stateSettings: PluginStateSettings_0_1_0) => {
+        hiddenStates.forEach( (stateSettings: StateSettings) => {
             menu.addItem((item) => {
+                const fileRawState = getFileStateSettings(props.file);
                 item.setTitle(stateSettings.name);
-                if(stateSettings.name === fileRawState) item.setChecked(true);
+                if(stateSettings.name === fileRawState?.name) item.setChecked(true);
                 item.onClick(() => {
                     setFileState(props.file, stateSettings);
                     props.onFileChange();

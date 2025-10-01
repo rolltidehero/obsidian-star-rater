@@ -1,4 +1,5 @@
 .ddc_pb_section {
+    position: relative;
     margin-bottom: 2em;
 }
 .ddc_pb_nav-and-filter-section {
@@ -29,7 +30,7 @@
     padding: 1em 1em 0;
 }
 .ddc_pb_section.ddc_pb_stateless-section {
-    margin-top: 5em;
+    padding-top: 5em;
 }
 
 .ddc_pb_section-header {

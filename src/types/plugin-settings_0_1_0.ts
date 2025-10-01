@@ -1,56 +1,51 @@
-export enum StateViewMode_0_1_0 {
-	DetailedCards = 'Detailed Cards',
-	SimpleCards = 'Simple Cards',
-	SmallCards = 'Small Cards',
-	List = 'List',
-}
+import { FolderSectionSettings_0_0_5, StateViewMode_0_0_5 } from "./plugin-settings_0_0_5";
 
-export enum FolderViewMode_0_1_0 {
-	Small = 'Small',
-}
+////////////////////
+////////////////////
 
 export interface PluginStateSettings_0_1_0 {
 	name: string,
-	defaultView: StateViewMode_0_1_0,
-	link?: boolean,
+	defaultView: StateViewMode_0_0_5,
+	link?: boolean,	// new
 }
 
-export interface PluginFolderSettings {
-	defaultView: FolderViewMode_0_1_0,
+export const DEFAULT_STATE_SETTINGS_0_1_0: PluginStateSettings_0_1_0 = {
+	name: '',
+	defaultView: 'Simple Cards',
+	link: true,
 }
 
-/////////////
 /////////////
 
 export interface PluginSettings_0_1_0 {
+	settingsVersion: string,
 	// Helpers
-    onboardingNotices: {
+    onboardingNotices: { // new
 		welcomeNoticeRead: boolean,
 		lastVersionNoticeRead: string,
 	},
-	////
-	settingsVersion: string,
+	//
 	access: {
 		replaceNewTab: boolean,
 		enableRibbonIcon: boolean,
 		enableCommand: boolean,
-		launchFolder: string,
+		launchFolder: string, // new
 	}
-	useAliases: boolean,
+	useAliases: boolean, // new
 	showStateMenu: boolean,
-	loopStatesWhenCycling: boolean,
-	folders: PluginFolderSettings,
+	loopStatesWhenCycling: boolean, // new
+	folders: FolderSectionSettings_0_0_5,
 	states: {
 		visible: PluginStateSettings_0_1_0[],
 		hidden: PluginStateSettings_0_1_0[],
 	},
 	stateless: PluginStateSettings_0_1_0,
+	defaultState?: string, // new
 }
 
 /////////////
-/////////////
 
-export const DEFAULT_SETTINGS_0_1_0: PluginSettings_0_1_0 = {
+export const DEFAULT_PLUGIN_SETTINGS_0_1_0: PluginSettings_0_1_0 = {
 	// Helpers
     onboardingNotices: {
 		welcomeNoticeRead: false,
@@ -67,51 +62,52 @@ export const DEFAULT_SETTINGS_0_1_0: PluginSettings_0_1_0 = {
 	showStateMenu: true,
 	loopStatesWhenCycling: true,
 	folders: {
-		defaultView: FolderViewMode_0_1_0.Small,
+		defaultView: 'Small',
 	},
 	states: {
 		visible: [
 			{
 				name: 'Idea',
-				defaultView: StateViewMode_0_1_0.SmallCards,
+				defaultView: 'Small Cards',
 				link: true,
 			},
 			{
 				name: 'Shortlisted',
-				defaultView: StateViewMode_0_1_0.SmallCards,
+				defaultView: 'Small Cards',
 				link: true,
 			},
 			{
 				name: 'Drafting',
-				defaultView: StateViewMode_0_1_0.DetailedCards,
+				defaultView: 'Detailed Cards',
 				link: true,
 			},
 			{
 				name: 'Focus',
-				defaultView: StateViewMode_0_1_0.SimpleCards,
+				defaultView: 'Simple Cards',
 				link: true,
 			},
 			{
 				name: 'Final',
-				defaultView: StateViewMode_0_1_0.SmallCards,
+				defaultView: 'Small Cards',
 				link: true,
 			},
 		],
 		hidden: [
 			{
 				name: 'Archived',
-				defaultView: StateViewMode_0_1_0.SmallCards,
+				defaultView: 'Small Cards',
 				link: true,
 				},
 			{
 				name: 'Cancelled',
-				defaultView: StateViewMode_0_1_0.DetailedCards,
+				defaultView: 'Detailed Cards',
 				link: true,
 			},
 		],
 	},
 	stateless: {
 		name: '',
-		defaultView: StateViewMode_0_1_0.List,
+		defaultView: 'List',
 	},
+	defaultState: 'Idea',
 }

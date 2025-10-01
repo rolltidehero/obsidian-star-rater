@@ -1,13 +1,12 @@
 {
 	"name": "obsidian_project-browser",
-	"version": "0.1.0",
+	"version": "0.3.2",
 	"description": "",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"test": "jest",
 		"build": "node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"internal-release": "sh ./scripts/internal-release.sh",
 		"beta-release": "sh ./scripts/beta-release.sh",
 		"public-release": "sh ./scripts/public-release.sh"
@@ -37,6 +36,7 @@
 	},
 	"dependencies": {
 		"@reduxjs/toolkit": "^2.1.0",
+		"@tippyjs/react": "^4.2.6",
 		"chalk": "^4.1.2",
 		"classnames": "^2.5.1",
 		"esbuild-plugin-copy": "^2.0.1",

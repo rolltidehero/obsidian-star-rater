@@ -131,16 +131,20 @@ export function toSentenceCase(str: string) {
 export function parseFilepath(filepath: string): { folderpath: string; basename: string; ext: string; } {
     const segments = filepath.split('/');
 
-    // Handle root directory (/)
-    let folderpath = segments[0] === '' ? '/' : '';
-
     // Extract filename and extension
     const filename = segments.pop() || '';
     const extIndex = filename.lastIndexOf('.');
     const ext = extIndex >= 0 ? filename.slice(extIndex) : '';
     const basename = extIndex >= 0 ? filename.slice(0, extIndex) : filename;
 
-    folderpath = segments.join('/');
+    // Handle folderpath - check if it's root directory first
+    let folderpath = '';
+    if (segments.length === 1 && segments[0] === '') {
+        // Root directory case
+        folderpath = '/';
+    } else {
+        folderpath = segments.join('/');
+    }
 
     return { folderpath, basename, ext: ext.startsWith('.') ? ext.slice(1) : ext };
 }
@@ -149,6 +153,137 @@ export function parseFilepath(filepath: string): { folderpath: string; basename:
 
 export const trimFilenameExt = (filename: string): string => {
     const str = filename.split('.')
-    str.pop();
+    // Only remove the last element if there's more than one element (i.e., there's an extension)
+    if (str.length > 1) {
+        str.pop();
+    }
     return str.join('.');
+}
+
+
+
+
+// REVIEW: Write tests for this
+export function removeFrontmatter(text: string): string {
+    const sectionRegex = /---([^`]+?)---(\s*)/g;
+    return text.replace(sectionRegex, "");
+}
+
+// REVIEW: Write tests for this
+export function removeCodeBlocks(text: string): string {
+    // Remove code blocks (``` ... ```), including multiline
+    // Replace with a single newline to preserve spacing
+    let result = text.replace(/(^|\n)```[\s\S]*?```(\n|$)/g, '\n');
+    // Clean up multiple newlines but preserve double newlines
+    result = result.replace(/\n{3,}/g, '\n\n');
+    return result.trim();
+}
+
+// REVIEW: Write tests for this
+export function removeXmlTags(text: string): string {
+    const xmlTagRegex = /<[^>]*>/g;
+    return text.replace(xmlTagRegex, "");
+}
+
+// REVIEW: Write tests for this
+// REVIEW: This isn't properly working with new lines across code blocks and maybe more
+export function simplifyWhiteSpace(text: string): string {
+    // Replace escaped newlines (\n) and surrounding whitespace with ". "
+    let result = text.replace(/(\\n\s*)+/g, '. ');
+    // Remove extra spaces before/after periods
+    result = result.replace(/\s*\.\s*/g, '. ');
+    // Collapse multiple spaces
+    result = result.replace(/ {2,}/g, ' ');
+    // Ensure only a single ". " for multiple newlines
+    result = result.replace(/(\.\s*){2,}/g, '. ');
+    // If the result is just a period, return '. '
+    if (result.trim() === '.') {
+        return '. ';
+    }
+    // Ensure we have a space after the period if it's at the end
+    if (result.endsWith('.')) {
+        result = result + ' ';
+    }
+    return result.trim();
+}
+
+// MARKDOWN REMOVAL HELPERS
+export function removeHeaders(text: string) {
+    return text.replace(/^#{1,6}\s+/gm, '');
+}
+export function removeBold(text: string) {
+    return text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1');
+}
+export function removeItalic(text: string) {
+    return text.replace(/\*(.*?)\*/g, '$1').replace(/_(.*?)_/g, '$1');
+}
+export function removeStrikethrough(text: string) {
+    return text.replace(/~~(.*?)~~/g, '$1');
+}
+export function removeInlineCode(text: string) {
+    return text.replace(/`([^`]+)`/g, '$1');
+}
+export function removeImages(text: string) {
+    return text.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
+}
+export function removeLinks(text: string) {
+    return text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+}
+export function removeBlockquotes(text: string) {
+    return text.replace(/^>\s+/gm, '');
+}
+export function removeLists(text: string) {
+    return text.replace(/^[\s]*[-*+]\s+/gm, '').replace(/^[\s]*\d+\.\s+/gm, '');
+}
+export function removeHorizontalRules(text: string) {
+    // Remove horizontal rules and clean up extra newlines
+    let result = text.replace(/^\s*([-*_])\1{2,}\s*$/gm, '');
+    result = result.replace(/\n{3,}/g, '\n\n');
+    return result;
+}
+export function removeInternalLinks(text: string) {
+    return text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, p1, p2) => (p2 ? p2 : p1));
+}
+export function removeCallouts(text: string) {
+    // Only remove lines that start with '> [!' (callout indicator)
+    return text.replace(/^>\s*\[![^\]]*\].*$/gm, '');
+}
+export function removeTags(text: string) {
+    return text.replace(/#([^\s#]+)/g, '$1');
+}
+export function removeHighlighting(text: string) {
+    return text.replace(/==([^=]+)==/g, '$1');
+}
+export function removeComments(text: string) {
+    // Remove lines starting with optional whitespace then '%'
+    return text.replace(/^\s*%.*$/gm, '');
+}
+export function removeEscapeCharacters(text: string) {
+    // Remove a single backslash before markdown special characters
+    return text.replace(/\\([`*_{}\[\]()#+\-!])/g, '$1');
+}
+
+export function removeMarkdownCharacters(text: string): string {
+    let cleaned = text;
+    cleaned = removeHeaders(cleaned);
+    cleaned = removeBold(cleaned);
+    cleaned = removeItalic(cleaned);
+    cleaned = removeStrikethrough(cleaned);
+    cleaned = removeInlineCode(cleaned);
+    cleaned = removeImages(cleaned);
+    cleaned = removeLinks(cleaned);
+    cleaned = removeCallouts(cleaned);
+    cleaned = removeBlockquotes(cleaned);
+    cleaned = removeLists(cleaned);
+    cleaned = removeHorizontalRules(cleaned);
+    cleaned = removeInternalLinks(cleaned);
+    cleaned = removeTags(cleaned);
+    cleaned = removeHighlighting(cleaned);
+    cleaned = removeComments(cleaned);
+    cleaned = removeEscapeCharacters(cleaned);
+    // Remove any leftover leading/trailing whitespace from lines
+    cleaned = cleaned.replace(/[ \t]+$/gm, '').replace(/^[ \t]+/gm, '');
+    // Collapse multiple blank lines (2 or more) into a single blank line
+    cleaned = cleaned.replace(/\n{2,}/g, '\n\n');
+    return cleaned.trim();
 }

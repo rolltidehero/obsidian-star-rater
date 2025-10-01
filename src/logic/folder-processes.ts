@@ -1,6 +1,6 @@
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { Section, getStateSettings, orderSections } from "./section-processes";
-import { getFileFrontmatter, getFileStateSettings, getFileStateName } from "./frontmatter-processes";
+import { getFileFrontmatter, getFileStateSettings, getFileStateName, getFilePrioritySettings } from "./frontmatter-processes";
 import { getFileExcerpt } from "./file-processes";
 import { getGlobals } from "./stores";
 
@@ -83,7 +83,7 @@ export const getProjectExcerpt = async (folder: TFolder): Promise<null|string> =
     return null;
 }
 
-export const getSortedItemsInFolder = (folder: TFolder): Section[] => {
+export const getSortedSectionsInFolder = (folder: TFolder): Section[] => {
     const {plugin} = getGlobals();
     const itemsInFolder = getItemsInFolder(folder);
     

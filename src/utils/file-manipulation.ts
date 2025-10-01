@@ -4,10 +4,10 @@
 import { App, DataWriteOptions, FileManager, TAbstractFile, TFile, TFolder, Vault, normalizePath } from "obsidian";
 import { folderPathSanitize, parseFilepath, sanitizeFileFolderName } from "./string-processes";
 import { setFileState } from "src/logic/frontmatter-processes";
-import { DEFAULT_FOLDER_SETTINGS_0_1_2, FolderSettings } from "src/types/folder-settings0_1_2";
 import { FOLDER_SETTINGS_FILENAME } from "src/constants";
 import { getGlobals } from "src/logic/stores";
-import { PluginStateSettings_0_1_0 } from "src/types/plugin-settings0_1_0";
+import { DEFAULT_FOLDER_SETTINGS, DEFAULT_SETTINGS, FolderSettings } from "src/types/types-map";
+import { getStateByName } from "src/logic/get-state-by-name";
 
 // //////////
 // //////////
@@ -35,21 +35,31 @@ import { PluginStateSettings_0_1_0 } from "src/types/plugin-settings0_1_0";
 //     return pathAndVersionedBasename + '.' + ext;
 // }
 
-
-interface ProjectDefaults {
-    stateSettings?: PluginStateSettings_0_1_0
+interface CreateProjectProps {
+    parentFolder: TFolder,
+    projectName: string,
+    stateName?: string,
 }
-export async function createProject(parentFolder: TFolder, projectName: string, defaults?: ProjectDefaults ): Promise<TFile> {
-    const v = parentFolder.vault;
+export async function createProject(props: CreateProjectProps): Promise<TFile> {
+    const v = props.parentFolder.vault;
+    const globals = getGlobals();
         
     // Creating a project folder
     // const projectFolder = await createFolders(v, projectPath);
     // const primaryProjectFile = await createDefaultMarkdownFile(v, projectFolder, 'Article');
     
-    const primaryProjectFile = await createDefaultMarkdownFile(v, parentFolder, projectName);
+    const primaryProjectFile = await createDefaultMarkdownFile(v, props.parentFolder, props.projectName);
 
-    if(defaults) {
-        if(defaults.stateSettings) setFileState(primaryProjectFile, defaults.stateSettings);
+    if(props.stateName) {
+        const stateSettings = getStateByName(props.stateName);
+        if(stateSettings) {
+            await setFileState(primaryProjectFile, stateSettings);
+        }
+    } else if(globals.plugin.settings.defaultState) {
+        const stateSettings = getStateByName(globals.plugin.settings.defaultState);
+        if(stateSettings) {
+            await setFileState(primaryProjectFile, stateSettings);
+        }
     }
 
     return primaryProjectFile;
@@ -173,7 +183,7 @@ async function createNewMarkdownFile(vault: Vault, folder: TFolder, filename: st
 
 export async function getFolderSettings(vault: Vault, folder: TFolder) : Promise<FolderSettings> {
     let settingsFile: TFile | null = null;
-    let folderSettings: FolderSettings = JSON.parse(JSON.stringify(DEFAULT_FOLDER_SETTINGS_0_1_2));
+    let folderSettings: FolderSettings = JSON.parse(JSON.stringify(DEFAULT_FOLDER_SETTINGS));
     const filename = `${folder.path}/${FOLDER_SETTINGS_FILENAME}`;
 
     try {

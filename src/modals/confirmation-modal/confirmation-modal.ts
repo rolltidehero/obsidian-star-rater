@@ -1,4 +1,5 @@
 import { App, Modal, Notice, Setting } from "obsidian";
+import { getGlobals } from "src/logic/stores";
 import { importFiles } from "src/logic/import-logic";
 import { singleOrPlural } from "src/logic/string-processes";
 import MyPlugin from "src/main";
@@ -14,23 +15,23 @@ export class ConfirmationModal extends Modal {
 	confirmLabel: string = 'Yes';
 	confirmAction: Function;
 
-	constructor(options: {
-		plugin: MyPlugin,
-		title?: string,
-		message?: string,
-		cancelLabel?: string,
-		cancelAction?: Function,
-		confirmLabel?: string,
-		confirmAction: Function,
-	}) {
-		super(options.plugin.app);
-		this.title = options.title || this.title;
-		this.message = options.message || this.message;
-		this.cancelLabel = options.cancelLabel || this.cancelLabel;
-		this.confirmLabel = options.confirmLabel || this.confirmLabel;
-		this.cancelAction = options.cancelAction || this.cancelAction;
-		this.confirmAction = options.confirmAction;
-	}
+    constructor(options: {
+        title?: string,
+        message?: string,
+        cancelLabel?: string,
+        cancelAction?: Function,
+        confirmLabel?: string,
+        confirmAction: Function,
+    }) {
+        const { plugin } = getGlobals();
+        super(plugin.app);
+        this.title = options.title || this.title;
+        this.message = options.message || this.message;
+        this.cancelLabel = options.cancelLabel || this.cancelLabel;
+        this.confirmLabel = options.confirmLabel || this.confirmLabel;
+        this.cancelAction = options.cancelAction || this.cancelAction;
+        this.confirmAction = options.confirmAction;
+    }
 
 	onOpen() {
 		const {titleEl, contentEl} = this;

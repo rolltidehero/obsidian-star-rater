@@ -1,16 +1,20 @@
-import { DEFAULT_SETTINGS_0_0_5, PluginSettings_0_0_5, StateViewMode_0_0_5 } from "./plugin-settings0_0_5";
-import { PluginSettings_0_0_4 } from "./plugin-settings0_0_4";
-import { DEFAULT_SETTINGS_0_1_0, PluginSettings_0_1_0 } from "./plugin-settings0_1_0";
+import { DEFAULT_PLUGIN_SETTINGS_0_0_5, PluginSettings_0_0_5, StateViewMode_0_0_5 } from "./plugin-settings_0_0_5";
+import { PluginSettings_0_0_4 } from "./plugin-settings_0_0_4";
+import { DEFAULT_PLUGIN_SETTINGS_0_1_0, DEFAULT_STATE_SETTINGS_0_1_0, PluginSettings_0_1_0 } from "./plugin-settings_0_1_0";
 import * as semVer from 'semver';
+import { PluginSettings } from "./types-map";
+import { DEFAULT_PLUGIN_SETTINGS_0_3_0, DEFAULT_STATE_SETTINGS_0_3_0, PluginSettings_0_3_0 } from "./plugin-settings_0_3_0";
+import { findItemByProperty } from "./migration-helpers";
 
 ///////////
 ///////////
 
-export function migrateOutdatedSettings(settings: {settingsVersion: string}): PluginSettings_0_1_0 {
+export function migrateOutdatedSettings(settings: {settingsVersion: string}): PluginSettings {
     let updatedSettings = settings;
     
-    if(!settings.settingsVersion)                         updatedSettings = migrate0_0_4to0_0_5(settings as unknown as PluginSettings_0_0_4);
-    if(semVer.lt(settings.settingsVersion, '0.1.0'))      updatedSettings = migrate0_0_5to0_1_0(settings as unknown as PluginSettings_0_0_5);
+    if(!settings.settingsVersion)                         updatedSettings = migrate_0_0_4_to_0_0_5(settings as unknown as PluginSettings_0_0_4);
+    if(semVer.lt(settings.settingsVersion, '0.1.0'))      updatedSettings = migrate_0_0_5_to_0_1_0(settings as unknown as PluginSettings_0_0_5);
+    if(semVer.lt(settings.settingsVersion, '0.3.0'))      updatedSettings = migrate_0_1_0_to_0_3_0(settings as unknown as PluginSettings_0_1_0);
     
     if(JSON.stringify(updatedSettings) != JSON.stringify(settings)) {
         console.log('Project Browser: Migrated outdated settings');
@@ -18,18 +22,18 @@ export function migrateOutdatedSettings(settings: {settingsVersion: string}): Pl
         console.log('New Settings', JSON.parse(JSON.stringify(updatedSettings)));
     }
 
-    return updatedSettings as PluginSettings_0_1_0;
+    return updatedSettings as PluginSettings;
 }
 
 ////////////
 ////////////
 
-function migrate0_0_4to0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_0_0_5 {
+export function migrate_0_0_4_to_0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_0_0_5 {
     
     const newSettings: PluginSettings_0_0_5 = {
 
         // Apply default settings as backup
-        ...DEFAULT_SETTINGS_0_0_5,
+        ...DEFAULT_PLUGIN_SETTINGS_0_0_5,
 
         // Then transfer over all existing user settings 1 by 1 with necessary conversions
         access: {
@@ -42,11 +46,11 @@ function migrate0_0_4to0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_
         states: {
             visible: oldSettings.states.visible.map((stateStr) => ({
                 name: stateStr,
-                defaultView: getStateDefaultView0_0_5(stateStr),
+                defaultView: getStateDefaultView_0_0_5(stateStr),
             })),
             hidden: oldSettings.states.hidden.map((stateStr) => ({
                 name: stateStr,
-                defaultView: getStateDefaultView0_0_5(stateStr),
+                defaultView: getStateDefaultView_0_0_5(stateStr),
             })),
         }
         // stateless // Didn't previously exist
@@ -55,34 +59,117 @@ function migrate0_0_4to0_0_5(oldSettings: PluginSettings_0_0_4): PluginSettings_
     return JSON.parse(JSON.stringify(newSettings));
 }
 
-function getStateDefaultView0_0_5(name: string): StateViewMode_0_0_5 {
-    const combinedStates = [...DEFAULT_SETTINGS_0_0_5.states.visible, ...DEFAULT_SETTINGS_0_0_5.states.hidden];
+function getStateDefaultView_0_0_5(name: string): StateViewMode_0_0_5 {
+    const combinedStates = [...DEFAULT_PLUGIN_SETTINGS_0_0_5.states.visible, ...DEFAULT_PLUGIN_SETTINGS_0_0_5.states.hidden];
     const equivalentState = combinedStates.find( (state) => state.name == name );
-    let defaultView = StateViewMode_0_0_5.DetailedCards;
+    let defaultView: StateViewMode_0_0_5 = 'Detailed Cards';
     if(equivalentState) defaultView = equivalentState.defaultView;
     return defaultView;
 }
 
 ///////////
 
-export function migrate0_0_5to0_1_0(oldSettings: PluginSettings_0_0_5): PluginSettings_0_1_0 {
+export function migrate_0_0_5_to_0_1_0(oldSettings: PluginSettings_0_0_5): PluginSettings_0_1_0 {
     
-    const newSettings = {
+    const newSettings: PluginSettings_0_1_0 = {
 
         // Apply default settings as backup
-        ...DEFAULT_SETTINGS_0_1_0,
+        ...DEFAULT_PLUGIN_SETTINGS_0_1_0,
 
         // Most other settings are the same as 0.0.5
         ...oldSettings,
 
-        // Transfer exceptions
+        // Migrate & overwrite exceptions
+        /////////////////////////////////
+
         access: {
             ...oldSettings.access,
             launchFolder: '/',
         },
 
+        useAliases: DEFAULT_PLUGIN_SETTINGS_0_1_0.useAliases,
+        loopStatesWhenCycling: DEFAULT_PLUGIN_SETTINGS_0_1_0.loopStatesWhenCycling,
+
+        states: {
+            visible: oldSettings.states.visible.map((stateStr, index) => ({
+                name: oldSettings.states.visible[index].name,
+                defaultView: oldSettings.states.visible[index].defaultView,
+                link: DEFAULT_STATE_SETTINGS_0_1_0.link,
+            })),
+            hidden: oldSettings.states.hidden.map((stateStr, index) => ({
+                name: oldSettings.states.hidden[index].name,
+                defaultView: oldSettings.states.hidden[index].defaultView,
+                link: DEFAULT_STATE_SETTINGS_0_1_0.link,
+            })),
+        },
+
+        stateless: {
+            name: oldSettings.stateless.name,
+            defaultView: oldSettings.stateless.defaultView,
+        },
+
         // Re overwrite settingsVersion
-        settingsVersion: DEFAULT_SETTINGS_0_1_0.settingsVersion,
+        settingsVersion: DEFAULT_PLUGIN_SETTINGS_0_1_0.settingsVersion,
+
+    };
+    
+    return JSON.parse(JSON.stringify(newSettings));
+}
+
+///////////
+
+export function migrate_0_1_0_to_0_3_0(oldSettings: PluginSettings_0_1_0): PluginSettings_0_3_0 {
+    
+    const newSettings: PluginSettings_0_3_0 = {
+
+        // Apply default settings as backup
+        ...DEFAULT_PLUGIN_SETTINGS_0_3_0,
+
+        // Most other settings are the same as 0.0.5
+        ...oldSettings,
+
+        // Migrate & overwrite exceptions
+        /////////////////////////////////
+
+        states: {
+            visible: oldSettings.states.visible.map((oldState, index) => {
+                const states = oldSettings.states.visible;
+                const defaultStates = DEFAULT_PLUGIN_SETTINGS_0_3_0.states.visible;
+                const defaultState = DEFAULT_STATE_SETTINGS_0_3_0
+                return {
+                    name: oldState.name,
+                    link: findItemByProperty(states, 'name', oldState.name)?.link ?? defaultState.link,
+                    defaultViewMode: findItemByProperty(states, 'name', oldState.name)?.defaultView ?? defaultState.defaultViewMode,
+                    defaultViewOrder: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewOrder ?? DEFAULT_STATE_SETTINGS_0_3_0.defaultViewOrder,
+                    defaultViewPriorityVisibility: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewPriorityVisibility ?? DEFAULT_STATE_SETTINGS_0_3_0.defaultViewPriorityVisibility,
+                    defaultViewPriorityGrouping: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewPriorityGrouping ?? DEFAULT_STATE_SETTINGS_0_3_0.defaultViewPriorityGrouping,
+                }
+            }),
+            hidden: oldSettings.states.hidden.map((oldState, index) => {
+                const states = oldSettings.states.hidden;
+                const defaultStates = DEFAULT_PLUGIN_SETTINGS_0_3_0.states.hidden;
+                const defaultState = DEFAULT_STATE_SETTINGS_0_3_0;
+                return {
+                    name: oldState.name,
+                    link: findItemByProperty(states, 'name', oldState.name)?.link ?? defaultState.link,
+                    defaultViewMode: findItemByProperty(states, 'name', oldState.name)?.defaultView ?? defaultState.defaultViewMode,
+                    defaultViewOrder: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewOrder ?? defaultState.defaultViewOrder,
+                    defaultViewPriorityVisibility: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewPriorityVisibility ?? defaultState.defaultViewPriorityVisibility,
+                    defaultViewPriorityGrouping: findItemByProperty(defaultStates, 'name', oldState.name)?.defaultViewPriorityGrouping ?? defaultState.defaultViewPriorityGrouping,
+                }
+            }),
+        },
+
+        stateless: {
+            name: oldSettings.stateless.name,
+            defaultViewMode: oldSettings.stateless.defaultView,
+            defaultViewOrder: DEFAULT_PLUGIN_SETTINGS_0_3_0.stateless.defaultViewOrder,
+            defaultViewPriorityVisibility: DEFAULT_PLUGIN_SETTINGS_0_3_0.stateless.defaultViewPriorityVisibility,
+            defaultViewPriorityGrouping: DEFAULT_PLUGIN_SETTINGS_0_3_0.stateless.defaultViewPriorityGrouping,
+        },
+
+        // Re overwrite settingsVersion
+        settingsVersion: DEFAULT_PLUGIN_SETTINGS_0_3_0.settingsVersion,
 
     };
     

@@ -2,13 +2,14 @@ import { Root, createRoot } from 'react-dom/client';
 import * as React from "react";
 import { ItemInterface, ReactSortable } from "react-sortablejs";
 import './state-editor.scss';
-import { NewStateModal } from 'src/modals/new-state-modal/new-state-modal';
-import { Cog, Ellipsis, GripVertical, Plus, Settings, Trash, X } from 'lucide-react';
+import { StateSettingsModalBase } from 'src/modals/state-settings-modal-base/state-settings-modal-base';
+import { GripVertical, Plus, Settings, Trash } from 'lucide-react';
 import classNames from 'classnames';
-import { Setting } from 'obsidian';
-import { PluginStateSettings_0_1_0 } from 'src/types/plugin-settings0_1_0';
 import { EditStateModal } from 'src/modals/edit-state-modal/edit-state-modal';
 import { getGlobals } from 'src/logic/stores';
+import { StateSettings } from 'src/types/types-map';
+import { NewVisibleStateModal } from 'src/modals/new-visible-state-modal/new-visible-state-modal';
+import { NewHiddenStateModal } from 'src/modals/new-hidden-state-modal/new-hidden-state-modal';
 
 //////////
 //////////
@@ -17,7 +18,7 @@ export function insertStateEditor(containerEl: HTMLElement) {
     const {plugin} = getGlobals();
     let root: Root;
 
-    const sectionEl = containerEl.createDiv('ddc_pb_section');
+    const sectionEl = containerEl.createDiv('ddc_pb_settings-sub-section');
     const contentEl = sectionEl.createDiv();
     this.root = createRoot(contentEl);
     renderView();
@@ -104,7 +105,7 @@ export const StateEditor = (props: StateEditorProps) => {
                                                 // Cycle through all states in the settings and update the one that matches this stateItem's name
                                                 if(stateInArray.name === stateItem.stateSettings.name) {
                                                     stateInArray.name = modifiedState.name;
-                                                    stateInArray.defaultView = modifiedState.defaultView;
+                                                    stateInArray.defaultViewMode = modifiedState.defaultViewMode;
                                                     stateInArray.link = modifiedState.link;
                                                 }
                                                 return stateInArray;
@@ -122,8 +123,7 @@ export const StateEditor = (props: StateEditorProps) => {
                 <button
                         className = "ddc_pb_add-button"
                         onClick = { async () => {
-                            new NewStateModal({
-                                title: ' Create new visible state',
+                            new NewVisibleStateModal({
                                 onSuccess: async (newState) => {
                                     const newStates = plugin.settings.states.visible;
                                     newStates.push(newState);
@@ -179,7 +179,7 @@ export const StateEditor = (props: StateEditorProps) => {
                                                 // Cycle through all states in the settings and update the one that matches this stateItem's name
                                                 if(stateInArray.name === stateItem.stateSettings.name) {
                                                     stateInArray.name = modifiedState.name;
-                                                    stateInArray.defaultView = modifiedState.defaultView;
+                                                    stateInArray.defaultViewMode = modifiedState.defaultViewMode;
                                                     stateInArray.link = modifiedState.link;
                                                 }
                                                 return stateInArray;
@@ -197,8 +197,7 @@ export const StateEditor = (props: StateEditorProps) => {
                     <button
                         className = "ddc_pb_add-button"
                         onClick = { async () => {
-                            new NewStateModal({
-                                title: ' Create new hidden state',
+                            new NewHiddenStateModal({
                                 onSuccess: async (newState) => {
                                     const newStates = plugin.settings.states.hidden;
                                     newStates.push(newState);
@@ -247,10 +246,10 @@ export const StateEditor = (props: StateEditorProps) => {
 
 interface StateItem extends ItemInterface {
     id: string,
-    stateSettings: PluginStateSettings_0_1_0
+    stateSettings: StateSettings
 }
 
-function convertToStateItems(stateSettings: PluginStateSettings_0_1_0[]): StateItem[] {
+function convertToStateItems(stateSettings: StateSettings[]): StateItem[] {
     const stateItems: StateItem[] = [];
     stateSettings.forEach( (thisStateSettings) => {
         stateItems.push({
@@ -261,8 +260,8 @@ function convertToStateItems(stateSettings: PluginStateSettings_0_1_0[]): StateI
     return stateItems;
 }
 
-function convertToStates(stateItems: StateItem[]): PluginStateSettings_0_1_0[] {
-    const states: PluginStateSettings_0_1_0[] = [];
+function convertToStates(stateItems: StateItem[]): StateSettings[] {
+    const states: StateSettings[] = [];
     stateItems.forEach( (stateItem) => {
         states.push(stateItem.stateSettings)
     })

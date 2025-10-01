@@ -1,39 +1,45 @@
 import { Keyboard } from "lucide-react";
 import { App, Modal, Notice, Setting, TextComponent, TFile, TFolder, ToggleComponent } from "obsidian";
 import { getGlobals } from "src/logic/stores";
-import { PluginStateSettings_0_1_0, StateViewMode_0_1_0 } from "src/types/plugin-settings0_1_0";
+import { DEFAULT_STATE_SETTINGS, StateSettings, StateViewMode } from "src/types/types-map";
 import { createProject } from "src/utils/file-manipulation";
 import { sanitizeInternalLinkName } from "src/utils/string-processes";
 
 /////////
 /////////
 
-interface NewStateModalProps {
+interface StateSettingsModalBaseProps {
 	title?: string,
-	onSuccess: (newState: PluginStateSettings_0_1_0) => {},
+	introText?: string,
+	actionButtonLabel?: string,
+	stateSettings?: StateSettings,
+	onSuccess: (newState: StateSettings) => {},
 	onReject?: (reason: string) => {},
 }
 
-export class NewStateModal extends Modal {
-	title: string;
-	onSuccess: (newState: PluginStateSettings_0_1_0) => {};
+export class StateSettingsModalBase extends Modal {
+	title: string = 'State settings';
+	introText: string;
+	actionButtonLabel: string = 'Save state';
+	onSuccess: (newState: StateSettings) => {};
 	onReject: ((reason: string) => {}) | undefined;
 	////
-    resolveModal: (state: PluginStateSettings_0_1_0) => void;
+    resolveModal: (state: StateSettings) => void;
 	rejectModal: (reason: string) => void;
-	stateSettings: PluginStateSettings_0_1_0 = {
-		name: '',
-		defaultView: StateViewMode_0_1_0.DetailedCards,
-		link: true,
+	stateSettings: StateSettings = {
+		...DEFAULT_STATE_SETTINGS,
 	}
 	//
 	nameInputEl: TextComponent;
 	linkInputEl: ToggleComponent;
 
-	constructor(props: NewStateModalProps) {
+	constructor(props: StateSettingsModalBaseProps) {
 		const {plugin} = getGlobals();
 		super(plugin.app);
-		this.title = props.title ? props.title : 'Create new state'
+		if(props.title) this.title = props.title;
+		if(props.introText) this.introText = props.introText;
+		if(props.actionButtonLabel) this.actionButtonLabel = props.actionButtonLabel;
+		if(props.stateSettings) this.stateSettings = JSON.parse(JSON.stringify(props.stateSettings));
 		this.onSuccess = props.onSuccess;
 		this.onReject = props.onReject;
 	}
@@ -41,7 +47,7 @@ export class NewStateModal extends Modal {
     /**
 	 * Opens the modal and returns a promise
 	 */
-	public showModal(): Promise<PluginStateSettings_0_1_0 | string> {
+	public showModal(): Promise<StateSettings | string> {
 		return new Promise((resolve, reject) => {
 			this.open();
 			this.resolveModal = resolve;
@@ -53,6 +59,9 @@ export class NewStateModal extends Modal {
 		const {titleEl, contentEl} = this;
 
 		titleEl.setText(this.title);
+		if(this.introText) {
+			contentEl.createEl('p', { text: this.introText });
+		}
         
         new Setting(contentEl)
             .setClass('ddc_pb_setting')
@@ -74,12 +83,12 @@ export class NewStateModal extends Modal {
             .setClass('ddc_pb_setting')
             .setName('Default view')
 			.addDropdown((dropdown) => {
-				Object.values(StateViewMode_0_1_0).map((viewModeStr) => {
+				Object.values(StateViewMode).map((viewModeStr: StateViewMode) => {
 					dropdown.addOption(viewModeStr, viewModeStr);
 				});
-				dropdown.setValue(this.stateSettings.defaultView.toString());
+				dropdown.setValue(this.stateSettings.defaultViewMode.toString());
 				dropdown.selectEl.addEventListener('change', (event) => {
-                    this.stateSettings.defaultView = dropdown.getValue() as StateViewMode_0_1_0;
+                    this.stateSettings.defaultViewMode = dropdown.getValue() as StateViewMode;
                 });
 			})
 
@@ -106,7 +115,7 @@ export class NewStateModal extends Modal {
 		.addButton( confirmBtn => {
 			confirmBtn.setClass('ddc_pb_button');
 			confirmBtn.setCta();
-			confirmBtn.setButtonText('Create state');
+			confirmBtn.setButtonText(this.actionButtonLabel);
 			confirmBtn.onClick( () => {
 				if(!this.stateSettings.name) return;	// TODO: Put in proper field validation and feedback
 				this.close();

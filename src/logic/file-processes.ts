@@ -4,6 +4,7 @@ import { CARD_BROWSER_VIEW_TYPE, ProjectCardsView } from "src/views/card-browser
 import { ConfirmationModal } from "src/modals/confirmation-modal/confirmation-modal";
 import { renameAbstractFile } from "src/utils/file-manipulation";
 import { getGlobals } from "./stores";
+import { removeCodeBlocks, removeFrontmatter, removeMarkdownCharacters, removeXmlTags, simplifyWhiteSpace } from "src/utils/string-processes";
 
 /////////
 /////////
@@ -32,28 +33,11 @@ export const getFileExcerpt = async (file: TFile): Promise<null|string> => {
     excerpt = await v.cachedRead(file);
     excerpt = removeFrontmatter(excerpt);
     excerpt = removeCodeBlocks(excerpt);
+    excerpt = removeXmlTags(excerpt);
+    excerpt = removeMarkdownCharacters(excerpt);
     excerpt = simplifyWhiteSpace(excerpt);
 
     return excerpt;
-}
-
-// REVIEW: Write tests for this
-export function removeFrontmatter(text: string): string {
-    const sectionRegex = /---([^`]+?)---(\s*)/g;
-    return text.replace(sectionRegex, "");
-}
-
-// REVIEW: Write tests for this
-export function removeCodeBlocks(text: string): string {
-    const sectionRegex = /(\s*)```([^`]+?)```(\s*)/g;
-    return text.replace(sectionRegex, "");
-}
-
-// REVIEW: Write tests for this
-// REVIEW: This isn't properly working with new lines across code blocks and maybe more
-export function simplifyWhiteSpace(text: string): string {
-    const lineBreakRegex = /(\\n|\\n\s+|\s+\\n)+/;
-    return text.replace(lineBreakRegex, '. ');
 }
 
 export function getScrollOffset(): number {
@@ -78,9 +62,7 @@ export function deleteFolderImmediately(folder: TFolder) {
 }
 
 export function deleteFileWithConfirmation(file: TFile) {
-    const {plugin} = getGlobals();
     new ConfirmationModal({
-        plugin,
         title: 'Delete note?',
         message: `Are you sure you'd like to delete "${file.name}" ?`,
         confirmLabel: 'Delete note',
@@ -92,9 +74,7 @@ export function deleteFileWithConfirmation(file: TFile) {
 }
 
 export function deleteFolderWithConfirmation(folder: TFolder) {
-    const {plugin} = getGlobals();
     new ConfirmationModal({
-        plugin,
         title: 'Delete folder & contents?',
         message: `Are you sure you'd like to delete "${folder.name}" and it's contents?`,
         confirmLabel: 'Delete folder & contents',

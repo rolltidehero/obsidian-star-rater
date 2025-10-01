@@ -1,9 +1,11 @@
 import './card-browser.scss';
 import * as React from "react";
-import { FolderSection, StateSection, StatelessSection } from "../section/section";
+import { FolderSection } from "../section/folder-section";
+import { StateSection } from "../section/state-section";
+import { StatelessSection } from "../section/stateless-section";
 import { TFile, TFolder } from 'obsidian';
 import { BackButtonAndPath } from '../back-button-and-path/back-button-and-path';
-import { filterSectionsByString, getSortedItemsInFolder } from 'src/logic/folder-processes';
+import { filterSectionsByString, getSortedSectionsInFolder, orderItemsInSections } from 'src/logic/folder-processes';
 import { CardBrowserViewEState, CardBrowserViewState, PartialCardBrowserViewState } from 'src/views/card-browser-view/card-browser-view';
 import { v4 as uuidv4 } from 'uuid';
 import { registerCardBrowserContextMenu } from 'src/context-menus/card-browser-context-menu';
@@ -58,7 +60,8 @@ export const CardBrowser = (props: CardBrowserProps) => {
     const v = plugin.app.vault;
     // const [path, setPath] = React.useState(props.path);
     const initialFolder = v.getFolderByPath(state.path) || v.getRoot(); // TODO: Check this is valid?
-    let sectionsOfItems = getSortedItemsInFolder(initialFolder);
+    let sectionsOfItems = getSortedSectionsInFolder(initialFolder);
+    
     filterSectionsByString(sectionsOfItems, searchStr);
     
     const lastTouchedFilePath = eState?.lastTouchedFilePath || '';
@@ -112,17 +115,18 @@ export const CardBrowser = (props: CardBrowserProps) => {
                     onFolderClick = { (folder: TFolder) => openFolderInSameLeaf(folder)}
                 />
                 <div
-                    key = {'nav-and-filter-section'}
                     className = {classNames([
                         'ddc_pb_section',
                         'ddc_pb_nav-and-filter-section'
                     ])}
                 >
-                    {sectionsOfItems.map( (section) => (<>
-                        {section.type === "folders" && (<>
-                            <FolderSection section={section}/>
-                        </>)}
-                    </>))}
+                    {sectionsOfItems.map( (section) => (
+                        <React.Fragment key={section.title}>
+                            {section.type === "folders" && (<>
+                                <FolderSection section={section}/>
+                            </>)}
+                        </React.Fragment>
+                    ))}
                     <SearchInput
                         searchActive = {searchActive}
                         onChange = {setSearchStr}
@@ -131,20 +135,22 @@ export const CardBrowser = (props: CardBrowserProps) => {
                     />
                 </div>
                 <div>
-                    {sectionsOfItems.map( (section) => (<>
-                        {section.type !== "folders" && (<>
-                            {(!searchActive || (searchActive && section.items.length > 0)) && (
-                                <div  key={section.title}>
-                                    {section.type === "state" && (
-                                        <StateSection section={section}/>
-                                    )}
-                                    {section.type === "stateless" && (
-                                        <StatelessSection section={section}/>
-                                    )}
-                                </div>
+                    {sectionsOfItems.map( (section, index) => (
+                        <React.Fragment key={section.title}>
+                            {section.type !== "folders" && (
+                                (!searchActive || (searchActive && section.items.length > 0)) && (
+                                    <div>
+                                        {section.type === "state" && (
+                                            <StateSection section={section}/>
+                                        )}
+                                        {section.type === "stateless" && (
+                                            <StatelessSection section={section}/>
+                                        )}
+                                    </div>
+                                )
                             )}
-                        </>)}
-                    </>))}
+                        </React.Fragment>
+                    ))}
                 </div>
                 <CardBrowserFloatingMenu
                     folder = {initialFolder}

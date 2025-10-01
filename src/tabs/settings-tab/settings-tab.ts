@@ -1,27 +1,28 @@
 import { insertStateEditor } from 'src/components/state-editor/state-editor';
 import 'src/shared/settings.scss';
-import { App, PluginSettingTab, Setting } from "obsidian";
-import InkPlugin from "src/main";
+import { PluginSettingTab, Setting } from "obsidian";
 import MyPlugin from "src/main";
 import { ConfirmationModal } from "src/modals/confirmation-modal/confirmation-modal";
 import { folderPathSanitize } from 'src/utils/string-processes';
 import { getGlobals } from 'src/logic/stores';
+import { StateSettings, StateViewMode, PrioritySettings } from 'src/types/types-map';
 
 /////////
 /////////
 
 export function registerSettingsTab() {
 	const {plugin} = getGlobals();
-	plugin.addSettingTab(new MySettingsTab(plugin.app, plugin));
+	plugin.addSettingTab(new MySettingsTab());
 }
 
 export class MySettingsTab extends PluginSettingTab {
-	plugin: MyPlugin;
+    plugin: MyPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+    constructor() {
+        const {plugin} = getGlobals();
+        super(plugin.app, plugin);
+        this.plugin = plugin;
+    }
 
 	display = (): void => {
 		const {containerEl} = this;
@@ -32,9 +33,10 @@ export class MySettingsTab extends PluginSettingTab {
 		// containerEl.createEl('hr');
 		
 		insertMoreInfoLinks(containerEl);
-		insertAccessSettings(containerEl, this.plugin, this.display);
-		insertStateSettings(containerEl, this.plugin, this.display);
-		insertNoteSettings(containerEl, this.plugin, this.display);
+		insertAccessSettings(containerEl, this.display);
+		insertStateSettings(containerEl, this.display);
+		insertPrioritySettings(containerEl, this.display);
+		insertNoteSettings(containerEl, this.display);
 			
 		// TODO: Collapsible change log
 		// containerEl.createEl('p', {
@@ -47,18 +49,17 @@ export class MySettingsTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.addButton( (button) => {
 				button.setButtonText('Reset settings');
-				button.onClick(() => {
-					new ConfirmationModal({
-						plugin: this.plugin,
-						title: 'Please confirm',
-						message: 'Revert all Project Browser settings to defaults??',
-						confirmLabel: 'Reset settings',
-						confirmAction: async () => {
-							await this.plugin.resetSettings();
-							this.display();
-						}
-					}).open();
-				})
+        button.onClick(() => {
+            new ConfirmationModal({
+                title: 'Please confirm',
+                message: 'Revert all Project Browser settings to defaults??',
+                confirmLabel: 'Reset settings',
+                confirmAction: async () => {
+                    await this.plugin.resetSettings();
+                    this.display();
+                }
+            }).open();
+        })
 			})
 		
 
@@ -87,7 +88,8 @@ function insertMoreInfoLinks(containerEl: HTMLElement) {
 	});
 }
 
-function insertAccessSettings(containerEl: HTMLElement, plugin: InkPlugin, refresh: Function) {
+function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
+	const {plugin} = getGlobals();
 
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section');
 
@@ -158,7 +160,8 @@ function insertAccessSettings(containerEl: HTMLElement, plugin: InkPlugin, refre
 		})
 }
 
-function insertStateSettings(containerEl: HTMLElement, plugin: InkPlugin, refresh: Function) {
+function insertStateSettings(containerEl: HTMLElement, refresh: Function) {
+	const {plugin} = getGlobals();
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
 	sectionEl.createEl('h2', { text: 'States' });
 	sectionEl.createEl('p', { text: `This is the list of categories that Project Browser will help assign notes and group by in the Browser view. Add new states and drag them to reorder or delete.` });
@@ -178,9 +181,62 @@ function insertStateSettings(containerEl: HTMLElement, plugin: InkPlugin, refres
 		});
 
 	insertStateEditor(sectionEl);
+
+	new Setting(sectionEl)
+		.setClass('ddc_pb_setting')
+		.setName('Default state')
+		.addDropdown((dropdown) => {
+			function updateDropdownOptions() {
+				const options: Record<string, string> = {};
+				Object.values(plugin.settings.states.visible).map((stateSettings: StateSettings) => {
+					options[stateSettings.name] = stateSettings.name;
+				});
+				Object.values(plugin.settings.states.hidden).map((stateSettings: StateSettings) => {
+					options[stateSettings.name] = stateSettings.name;
+				});
+				options['(None)'] = '(None)';
+				dropdown.selectEl.empty();
+				dropdown.addOptions(options)
+			}
+			updateDropdownOptions();
+			dropdown.selectEl.addEventListener('focus', (event) => {
+				updateDropdownOptions();
+			});
+			dropdown.selectEl.addEventListener('change', (event) => {
+				plugin.settings.defaultState = dropdown.getValue() == '(None)' ? undefined : dropdown.getValue() as string;
+				plugin.saveSettings();
+			});
+		})
 }
 
-function insertNoteSettings(containerEl: HTMLElement, plugin: InkPlugin, refresh: Function) {
+function insertPrioritySettings(containerEl: HTMLElement, refresh: Function) {
+	const {plugin} = getGlobals();
+	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
+	sectionEl.createEl('h2', { text: 'Priorities' });
+	sectionEl.createEl('p', { text: `Files can be given high or low priorities from within the browser panel. This can make notes appear with different styling or as grouped by priority.` });
+
+	// Add toggle for treating priorities as links
+	new Setting(sectionEl)
+		.setClass('ddc_pb_setting')
+		.setName('Treat priorities as links')
+		.setDesc('This will input priorities as internal Obsidian links so that they can be opened and will appear in the graph view as nodes.')
+		.addToggle((toggle) => {
+			// Check if any priority has link enabled to set the initial state
+			const hasLinkEnabled = plugin.settings.priorities.some(priority => priority.link);
+			toggle.setValue(hasLinkEnabled);
+			toggle.onChange(async (value) => {
+				// Update all priorities to have the same link setting
+				plugin.settings.priorities.forEach(priority => {
+					priority.link = value;
+				});
+				await plugin.saveSettings();
+				refresh();
+			});
+		});
+}
+
+function insertNoteSettings(containerEl: HTMLElement, refresh: Function) {
+	const {plugin} = getGlobals();
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
 	sectionEl.createEl('h2', { text: 'Notes' });
 	sectionEl.createEl('p', { text: 'This section defines how Project Browser features are integrated on screen when your markdown notes display.' });
