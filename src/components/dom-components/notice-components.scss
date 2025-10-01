@@ -24,6 +24,10 @@
         margin-block-start: 0.1em;
         color: var(--text-accent);
     }
+    h2 {
+        margin-block-end: 0.1em;
+        font-size: calc(var(--font-text-size) * 1.1);
+    }
     p {
         font-size: var(--font-text-size);
         color: var(--text-normal);
