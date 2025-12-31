@@ -60,7 +60,7 @@ Below are the high level features in my current development plan along with when
 >As with most Obsidian plugins, this is a free gift to the community, provided 'as is' to help you out. While I'm doing my best to make it awesome (And I love feedback), there are always chances things might not work quite right. To be safe, **please always back up your files**.
 
 ## 🪳 Report a bug
-Found something that's not quite working right or do you have a feature request? Don't be shy, feel free to make some noise over on the [GitHub Issues](https://github.com/daledesilva/obsidian_project-browser/issues) page. But be sure to check if someone has already posted the same issue and comment on theirs if they have.
+Found something that's not quite working right or do you have a feature request? Don't be shy, feel free to make some noise over on the [GitHub Issues](https://github.com/rolltidehero/obsidian-star-rater/issues) page. But be sure to check if someone has already posted the same issue and comment on theirs if they have.
 
 ## 💾 Installation
 You can find this plugin in the plugin directory within Obsidian.
@@ -88,7 +88,7 @@ BRAT is another community plugin that allows you to install a Beta version. New 
 5. Scroll down and **activate** BRAT.
 6. In the BRAT menu in the side pane, select **Add Beta Plugin**.
 7. Follow the instructions presented.
-8. When a URL is requested, use: `https://github.com/daledesilva/obsidian_project-browser/`
+8. When a URL is requested, use: `https://github.com/rolltidehero/obsidian-star-rater/`
 
 </details>
 <details>
@@ -119,8 +119,6 @@ If you find this plugin saves you time or helps you in some way, please consider
   </a>
 </p>
 
-## 🤖 My other work
-You can find links to my other projects on [designdebt.club](https://designdebt.club), where I blog about design and development, as well as release other plugins like this one. You can also find my writing at at [falterinresolute.com](https://falterinresolute.com) where I combine philosophy and animation.
 
 <p>
   <a href="https://designdebt.club" target="_blank">
