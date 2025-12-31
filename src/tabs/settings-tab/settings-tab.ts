@@ -89,7 +89,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section');
 
-	new Setting(containerEl)
+	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Replace empty tab')
 		.setDesc('Create a new, empty tab to access the Star Rater.')
