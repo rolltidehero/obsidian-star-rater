@@ -71,8 +71,8 @@ export const getFileStateSettings = (file: TFile): null | StateSettings => {
     const frontmatter = getFileFrontmatter(file);
     if(!frontmatter) return null;
 
-    if((frontmatter as FrontMatterCache).state) {
-        const stateName = (frontmatter as FrontMatterCache).state;
+    if((frontmatter as FrontMatterCache).rating) {
+        const stateName = (frontmatter as FrontMatterCache).rating;
         if(stateName) {
             return getStateByName(stateName);
         } else {
@@ -109,24 +109,24 @@ export const setFileState = async (file: TFile, stateSettings: null | StateSetti
         await processFrontMatterPreserveTimestamp(file, (frontmatter) => {
             
             if(stateSettings) {
-                if(frontmatter['state'] === stateSettings.name || frontmatter['state'] === `[[${stateSettings.name}]]`) {
+                if(frontmatter['rating'] === stateSettings.name || frontmatter['rating'] === `[[${stateSettings.name}]]`) {
                     // Clicked on same state, remove it
-                    frontmatter['state'] = undefined;
+                    frontmatter['rating'] = undefined;
                     return;
                 } else {
                     // Clicked on different state, set it
                     if(stateSettings.link) {
-                        frontmatter['state'] = `[[${stateSettings.name}]]`;
+                        frontmatter['rating'] = `[[${stateSettings.name}]]`;
                         return;
                     } else {
-                        frontmatter['state'] = stateSettings.name;
+                        frontmatter['rating'] = stateSettings.name;
                         return;
                     }
                 }
 
             } else {
-                frontmatter['state'] = undefined;
-                // NOTE: delete frontmatter['state']; // This doesn't work
+                frontmatter['rating'] = undefined;
+                // NOTE: delete frontmatter['rating']; // This doesn't work
             }
         });
         plugin.refreshFileDependants();

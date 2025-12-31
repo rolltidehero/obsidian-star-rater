@@ -95,7 +95,7 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 	states: {
 		visible: [
 			{
-				name: 'Idea',
+				name: '⭐ [1/5]',
 				link: true,
 				defaultViewMode: 'Small Cards',
 				defaultViewOrder: 'AliasOrFilename',
@@ -103,7 +103,7 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 				defaultViewPriorityGrouping: true,
 			},
 			{
-				name: 'Shortlisted',
+				name: '⭐⭐ [2/5]',
 				link: true,
 				defaultViewMode: 'Small Cards',
 				defaultViewOrder: 'AliasOrFilename',
@@ -111,7 +111,15 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 				defaultViewPriorityGrouping: true,
 			},
 			{
-				name: 'Drafting',
+				name: '⭐⭐⭐ [3/5]',
+				link: true,
+				defaultViewMode: 'Small Cards',
+				defaultViewOrder: 'AliasOrFilename',
+				defaultViewPriorityVisibility: true,
+				defaultViewPriorityGrouping: true,
+			},
+			{
+				name: '⭐⭐⭐⭐ [4/5]',
 				link: true,
 				defaultViewMode: 'Detailed Cards',
 				defaultViewOrder: 'AliasOrFilename',
@@ -119,40 +127,15 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 				defaultViewPriorityGrouping: true,
 			},
 			{
-				name: 'Focus',
+				name: '⭐⭐⭐⭐⭐ [5/5]',
 				link: true,
 				defaultViewMode: 'Simple Cards',
-				defaultViewOrder: 'AliasOrFilename',
-				defaultViewPriorityVisibility: true,
-				defaultViewPriorityGrouping: true,
-			},
-			{
-				name: 'Final',
-				link: true,
-				defaultViewMode: 'Small Cards',
 				defaultViewOrder: 'ModifiedDate',
 				defaultViewPriorityVisibility: false,
 				defaultViewPriorityGrouping: false,
 			},
 		],
-		hidden: [
-			{
-				name: 'Archived',
-				link: true,
-				defaultViewMode: 'Small Cards',
-				defaultViewOrder: 'ModifiedDate',
-				defaultViewPriorityVisibility: false,
-				defaultViewPriorityGrouping: false,
-			},
-			{
-				name: 'Cancelled',
-				link: true,
-				defaultViewMode: 'Detailed Cards',
-				defaultViewOrder: 'ModifiedDate',
-				defaultViewPriorityVisibility: false,
-				defaultViewPriorityGrouping: false,
-			},
-		],
+		hidden: [],
 	},
 	stateless: {
 		name: '',
@@ -161,7 +144,7 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 		defaultViewPriorityVisibility: true,
 		defaultViewPriorityGrouping: true,
 	},
-	defaultState: 'Idea',
+	defaultState: '⭐⭐⭐ [3/5]',
 
 	priorities: [
 		{
