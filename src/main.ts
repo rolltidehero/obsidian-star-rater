@@ -84,7 +84,7 @@ export default class ProjectBrowserPlugin extends Plugin {
 	async resetSettings() {
 		this.settings = JSON.parse( JSON.stringify(DEFAULT_SETTINGS) );
 		this.saveSettings();
-		new Notice('Project Browser plugin settings reset');
+		new Notice('Star Rater plugin settings reset');
 	}
 
 	/**

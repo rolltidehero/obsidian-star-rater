@@ -23,7 +23,7 @@ export function getGlobals(): StaticGlobals {
 	const store = getDefaultStore();
 	const globals = store.get(globalsAtom);
 	if(!globals) {
-		throw new Error(`Project Browser plugin globals isn't available yet`);
+		throw new Error(`Star Rater plugin globals isn't available yet`);
 	}
 	return globals;
 }

@@ -121,7 +121,7 @@ export const getSortedSectionsInFolder = (folder: TFolder): Section[] => {
             // }
 
         } else if(item instanceof TFile) {
-            // Don't show Project Browser settings files
+            // Don't show Star Rater settings files
             if(item.extension.toLowerCase() === 'pbs') return;
 
             const displayState = getFileStateName(item);

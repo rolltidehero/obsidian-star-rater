@@ -19,7 +19,7 @@ export function launchPersistentNotice(noticeBody: DocumentFragment) {
 
 function createNoticeLabel(noticeBody: DocumentFragment, noticeNumber?: number, noticeTotal?: number): HTMLParagraphElement {
     const labelEl = noticeBody.createEl('p');
-    let labelText = `Project Browser plugin`;
+    let labelText = `Star Rater plugin`;
     // if(noticeNumber) labelText += ' ('+noticeNumber;
     // if(noticeTotal) labelText += '/'+noticeTotal;
     // if(noticeNumber) labelText += ')';
