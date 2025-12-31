@@ -17,7 +17,7 @@ export function migrateOutdatedSettings(settings: {settingsVersion: string}): Pl
     if(semVer.lt(settings.settingsVersion, '0.3.0'))      updatedSettings = migrate_0_1_0_to_0_3_0(settings as unknown as PluginSettings_0_1_0);
     
     if(JSON.stringify(updatedSettings) != JSON.stringify(settings)) {
-        console.log('Project Browser: Migrated outdated settings');
+        console.log('Star Rater: Migrated outdated settings');
         console.log('Old Settings', JSON.parse(JSON.stringify(settings)));
         console.log('New Settings', JSON.parse(JSON.stringify(updatedSettings)));
     }

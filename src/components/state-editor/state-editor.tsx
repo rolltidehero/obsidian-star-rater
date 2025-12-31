@@ -65,7 +65,7 @@ export const StateEditor = (props: StateEditorProps) => {
         >
 
             <div className="ddc_pb_states-section">
-                <h3>Visible states</h3>
+                <h3>Star rating levels</h3>
                 <ReactSortable
                     list = {visibleStates}
                     setList = { async (stateItems) => {

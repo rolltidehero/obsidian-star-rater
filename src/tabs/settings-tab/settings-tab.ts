@@ -52,7 +52,7 @@ export class MySettingsTab extends PluginSettingTab {
         button.onClick(() => {
             new ConfirmationModal({
                 title: 'Please confirm',
-                message: 'Revert all Project Browser settings to defaults??',
+                message: 'Revert all Star Rater settings to defaults??',
                 confirmLabel: 'Reset settings',
                 confirmAction: async () => {
                     await this.plugin.resetSettings();
@@ -68,22 +68,18 @@ export class MySettingsTab extends PluginSettingTab {
 
 function insertMoreInfoLinks(containerEl: HTMLElement) {
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section');
-	sectionEl.createEl('p', { text: `For information on this plugin's development, visit the links below. Feel free to leave comments in the development diaries on YouTube.` });
+	sectionEl.createEl('p', { text: `For information on this plugin's development, visit the links below.` });
 	const list = sectionEl.createEl('ul');
 	list.createEl('li').createEl('a', {
-		href: 'https://github.com/daledesilva/obsidian_project-browser/releases',
+		href: 'https://github.com/rolltidehero/obsidian-star-rater/releases',
 		text: 'Latest changes'
 	});
 	list.createEl('li').createEl('a', {
-		href: 'https://github.com/daledesilva/obsidian_project-browser',
-		text: 'Roadmap'
+		href: 'https://github.com/rolltidehero/obsidian-star-rater',
+		text: 'Repository'
 	});
 	list.createEl('li').createEl('a', {
-		href: 'https://youtube.com/playlist?list=PLAiv7XV4xFx3_JUHGUp_vrqturMTsoBUZ&si=VO6nlt2v0KG224cY',
-		text: 'Development diaries.'
-	});
-	list.createEl('li').createEl('a', {
-		href: 'https://github.com/daledesilva/obsidian_project-browser/issues',
+		href: 'https://github.com/rolltidehero/obsidian-star-rater/issues',
 		text: 'Request feature / Report bug.'
 	});
 }
@@ -96,7 +92,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Replace empty tab')
-		.setDesc('Create a new, empty tab to access the Project Browser.')
+		.setDesc('Create a new, empty tab to access the Star Rater.')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.access.replaceNewTab);
 			toggle.onChange(async (value) => {
@@ -109,7 +105,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Enable ribbon icon')
-		.setDesc('Click an icon in the Obsidian ribbon menu bar to open the Project Browser in a new tab.')
+		.setDesc('Click an icon in the Obsidian ribbon menu bar to open the Star Rater in a new tab.')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.access.enableRibbonIcon);
 			toggle.onChange(async (value) => {
@@ -122,7 +118,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Enable command')
-		.setDesc('Run a command from the Command Palette at any time to open the Project Browser in a new tab.')
+		.setDesc('Run a command from the Command Palette at any time to open the Star Rater in a new tab.')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.access.enableCommand);
 			toggle.onChange(async (value) => {
@@ -135,7 +131,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Launch folder')
-		.setDesc('Which folder should new Project Browser tabs open in.')
+		.setDesc('Which folder should new Star Rater tabs open in.')
 		.addText((text) => {
 			text.setValue(plugin.settings.access.launchFolder);
 			text.inputEl.addEventListener( 'blur', (e) => {
@@ -149,7 +145,7 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
 		.setName('Use Aliases')
-		.setDesc(`Display the first alias of a file as it's name in the Project Browser if available.`)
+		.setDesc(`Display the first alias of a file as it's name in the Star Rater if available.`)
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.useAliases);
 			toggle.onChange(async (value) => {
@@ -163,14 +159,14 @@ function insertAccessSettings(containerEl: HTMLElement, refresh: Function) {
 function insertStateSettings(containerEl: HTMLElement, refresh: Function) {
 	const {plugin} = getGlobals();
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
-	sectionEl.createEl('h2', { text: 'States' });
-	sectionEl.createEl('p', { text: `This is the list of categories that Project Browser will help assign notes and group by in the Browser view. Add new states and drag them to reorder or delete.` });
+	sectionEl.createEl('h2', { text: 'Star Ratings' });
+	sectionEl.createEl('p', { text: `This is the list of star rating levels that Star Rater will help assign to notes and group by in the Browser view. Add new rating levels and drag them to reorder or delete.` });
 	// sectionEl.createEl('p', { text: `Notes states will appear in reverse order in the Browser view so that more progressed notes are shown higher. Hidden states will not show.` });
 
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
-		.setName('Loop states')
-		.setDesc('When pressing the hotkeys to step states forward or backward, should it cycle back to the first or last state when the end is reached?')
+		.setName('Loop ratings')
+		.setDesc('When pressing the hotkeys to step ratings forward or backward, should it cycle back to the first or last rating when the end is reached?')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.loopStatesWhenCycling);
 			toggle.onChange(async (value) => {
@@ -184,7 +180,7 @@ function insertStateSettings(containerEl: HTMLElement, refresh: Function) {
 
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
-		.setName('Default state')
+		.setName('Default rating')
 		.addDropdown((dropdown) => {
 			function updateDropdownOptions() {
 				const options: Record<string, string> = {};
@@ -239,10 +235,10 @@ function insertNoteSettings(containerEl: HTMLElement, refresh: Function) {
 	const {plugin} = getGlobals();
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
 	sectionEl.createEl('h2', { text: 'Notes' });
-	sectionEl.createEl('p', { text: 'This section defines how Project Browser features are integrated on screen when your markdown notes display.' });
+	sectionEl.createEl('p', { text: 'This section defines how Star Rater features are integrated on screen when your markdown notes display.' });
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
-		.setName('Show state menu in notes')
+		.setName('Show rating menu in notes')
 		.setDesc('This can be toggled any time through a command (Default shortcut: Cmd+Shift+S).')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.showStateMenu);

@@ -9,9 +9,9 @@ interface NewVisibleStateModalProps {
 export class NewVisibleStateModal extends StateSettingsModalBase {
 	constructor(props: NewVisibleStateModalProps) {
 		super({
-			title: 'Create new visible state',
-			introText: 'Create a new visible state to categorize your notes.',
-			actionButtonLabel: 'Create visible state',
+			title: 'Create new rating level',
+			introText: 'Create a new star rating level to categorize your notes.',
+			actionButtonLabel: 'Create rating level',
 			onSuccess: props.onSuccess,
 			onReject: props.onReject,
 		});

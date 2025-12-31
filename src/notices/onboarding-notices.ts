@@ -18,8 +18,8 @@ export async function showOnboardingNotices() {
     noticeShowingOrDismissed = true;
 
     const noticeBody = createNoticeTemplate(1,3);
-    noticeBody.createEl('h1').setText(`Welcome to Project Browser`);
-    noticeBody.createEl('p').setText(`Project Browser is designed to simplify file navigation and help you focus on your priority projects.`);
+    noticeBody.createEl('h1').setText(`Welcome to Star Rater`);
+    noticeBody.createEl('p').setText(`Star Rater is designed to simplify file navigation and help you organize your files by star ratings (1-5 stars).`);
     noticeBody.createEl('p').setText(`Here's a quick rundown to help you get started...`);
     
     const {
@@ -75,9 +75,9 @@ function showBrowserViewNotice() {
 function showNotesNotice() {
     const {plugin} = getGlobals();
     const noticeBody = createNoticeTemplate();
-    noticeBody.createEl('h1').setText(`Note states...`);
-    noticeBody.createEl('p').setText(`The state of each note can be assigned through a button at the top of the note or through the command shortcuts (Cmd+Shift+D and Cmd+Shift+A).`);
-    noticeBody.createEl('p').setText(`Notes in each folder are organised in the browse view by their state.`);
+    noticeBody.createEl('h1').setText(`Note ratings...`);
+    noticeBody.createEl('p').setText(`The rating of each note can be assigned through a button at the top of the note or through the command shortcuts (Cmd+Shift+D and Cmd+Shift+A).`);
+    noticeBody.createEl('p').setText(`Notes in each folder are organised in the browse view by their star rating.`);
 
     const {
         primaryBtnEl,
@@ -102,8 +102,8 @@ function showCustomisationNotice() {
     const {plugin} = getGlobals();
     const noticeBody = createNoticeTemplate();
     noticeBody.createEl('h1').setText(`Customisation...`);
-    noticeBody.createEl('p').setText(`The states and their order can be customised in the settings. As well as when the browse view opens and a growing set of other features.`);
-    noticeBody.createEl('p').setText(`The state menu in each note can also be hidden with Cmd+Shift+S.`);
+    noticeBody.createEl('p').setText(`The star rating levels and their order can be customised in the settings. As well as when the browse view opens and a growing set of other features.`);
+    noticeBody.createEl('p').setText(`The rating menu in each note can also be hidden with Cmd+Shift+S.`);
 
     const {
         primaryBtnEl,
@@ -133,8 +133,8 @@ function showDevelopmentWelcomeNotice() {
     noticeBody.createEl('p').setText(`You can also follow along with development and let me know which features are important to you at the link below.`);
 
     const link = noticeBody.createEl('a');
-    link.setAttribute('href', 'https://www.youtube.com/playlist?list=PLAiv7XV4xFx3_JUHGUp_vrqturMTsoBUZ')
-    link.setText(`Project Browser development diaries`);
+    link.setAttribute('href', 'https://github.com/rolltidehero/obsidian-star-rater')
+    link.setText(`Star Rater on GitHub`);
     // Prevent clicking link from closing notice
     link.onClickEvent( e => e.stopPropagation())
     

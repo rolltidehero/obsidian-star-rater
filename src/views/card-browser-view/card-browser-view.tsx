@@ -32,7 +32,7 @@ export function setCardBrowserViewStateDefaults(): CardBrowserViewState {
 
     let launchPath = plugin.settings.access.launchFolder
     if(!plugin.app.vault.getFolderByPath(launchPath)) {
-        new Notice('Launch folder not found. Launching in root of vault instead. Update your launch folder in the Project Browser plugin settings.', 10000)
+        new Notice('Launch folder not found. Launching in root of vault instead. Update your launch folder in the Star Rater plugin settings.', 10000)
         launchPath = plugin.app.vault.getRoot().path;
     }
     return {

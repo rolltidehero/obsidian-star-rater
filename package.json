@@ -1,7 +1,7 @@
 {
-	"name": "obsidian_project-browser",
+	"name": "obsidian-star-rater",
 	"version": "0.3.2",
-	"description": "",
+	"description": "An Obsidian plugin for organizing files by star ratings (1-5 stars)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

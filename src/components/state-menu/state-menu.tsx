@@ -41,7 +41,7 @@ export const StateMenu = (props: StateMenuProps) => {
     }, [file]);
 
     let displayState = stateSettings?.name;
-    if(!displayState) displayState = 'Set State';
+    if(!displayState) displayState = 'Set Rating';
 
     const visibleStates = plugin.settings.states.visible;
     const hiddenStates = plugin.settings.states.hidden;
