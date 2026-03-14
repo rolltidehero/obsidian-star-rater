@@ -1,5 +1,15 @@
 import '@testing-library/jest-dom';
 
+// Obsidian uses String.prototype.contains (or polyfill); ensure it exists for unit tests
+if (!Object.prototype.hasOwnProperty.call(String.prototype, 'contains')) {
+  Object.defineProperty(String.prototype, 'contains', {
+    value: function (this: string, search: string) {
+      return this.includes(search);
+    },
+    configurable: true,
+  });
+}
+
 // Global mocks for DOM APIs that may be missing or behave differently in jsdom
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
