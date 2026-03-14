@@ -1,35 +1,4 @@
 import { describe, expect, test, jest } from "@jest/globals";
-
-// Provide a virtual mock for the 'obsidian' module so importing code works in tests
-jest.mock("obsidian", () => {
-  class TAbstractFile {}
-  class TFile extends TAbstractFile {
-    name: string;
-    basename: string;
-    stat: { ctime: number; mtime: number };
-    extension: string;
-    constructor(name = "file.md", ctime = 0, mtime = 0) {
-      super();
-      this.name = name;
-      this.basename = name.replace(/\.[^.]+$/, "");
-      this.extension = (name.split(".").pop() || "").toLowerCase();
-      this.stat = { ctime, mtime } as any;
-    }
-  }
-  class TFolder extends TAbstractFile {
-    name: string;
-    children: TAbstractFile[] = [];
-    path = "";
-    vault: any;
-    constructor(name = "folder") {
-      super();
-      this.name = name;
-    }
-  }
-  return { TAbstractFile, TFile, TFolder };
-}, { virtual: true });
-
-// Now import types and the functions under test
 import { TFile, TFolder } from "obsidian";
 import {
   sortItemsByName,

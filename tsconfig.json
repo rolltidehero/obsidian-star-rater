@@ -19,8 +19,6 @@
     ],
     "jsx": "react"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx", "src/views/card-browser-view",
-  ],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["tests/e2e", "node_modules"]
 }
