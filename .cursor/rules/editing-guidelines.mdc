@@ -1,0 +1,9 @@
+---
+description: Editing guardrails for the obsidian_project-browser workspace
+alwaysApply: true
+---
+
+# Editing guidelines
+
+- Respect the project's existing patterns and conventions before introducing new ones.
+- Docs in `docs/` are reference material. Keep them accurate if related code changes.

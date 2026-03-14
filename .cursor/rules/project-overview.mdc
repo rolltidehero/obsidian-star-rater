@@ -1,0 +1,18 @@
+---
+description: High-level map of the obsidian_project-browser workspace
+alwaysApply: true
+---
+
+# Project overview
+
+This workspace contains **obsidian_project-browser** — an Obsidian plugin that replaces the new tab window with a card layout of files in each folder, organised by state. The view is filterable with an inbuilt search field, and files can be assigned a state from a prominent menu within the note.
+
+## Tech stack
+
+- TypeScript, React, Jotai, Redux Toolkit
+- SCSS for styling (co-located with components)
+- Obsidian plugin API for views, settings, modals, and commands
+
+## Documentation
+
+Design documentation and implementation notes live in `docs/` at the repository root.
