@@ -25,6 +25,8 @@ async function write(path, content) {
 // Plugin version for pre-seeded data (suppresses onboarding)
 const PLUGIN_VERSION = "0.3.2";
 
+// Matches DEFAULT_PLUGIN_SETTINGS_0_3_0 from src/types/plugin-settings_0_3_0.ts
+// showFileExtForNonMdFiles is explicitly true (default)
 const PLUGIN_DATA_JSON = {
   settingsVersion: "0.3.0",
   onboardingNotices: {
@@ -118,10 +120,18 @@ const PLUGIN_DATA_JSON = {
   ],
 };
 
+const FOLDER_SETTINGS_PBS = JSON.stringify(
+  { _description: "Obsidian Project Browser folder settings", isProject: true },
+  null,
+  2
+);
+
 async function main() {
   await ensureDir(join(VAULT_ROOT, ".obsidian/plugins/project-browser"));
   await ensureDir(join(VAULT_ROOT, "Project A"));
   await ensureDir(join(VAULT_ROOT, "Project B"));
+  await ensureDir(join(VAULT_ROOT, "Archive"));
+  await ensureDir(join(VAULT_ROOT, "Reference"));
 
   await write(".obsidian/app.json", JSON.stringify({ safeMode: false }));
   await write(
@@ -133,6 +143,8 @@ async function main() {
     JSON.stringify(PLUGIN_DATA_JSON, null, 2)
   );
 
+  // Project A (project with pages)
+  await write("Project A/folder-settings.pbs", FOLDER_SETTINGS_PBS);
   await write(
     "Project A/note-1.md",
     `---
@@ -144,7 +156,50 @@ state: Idea
 Sample note for E2E tests.
 `
   );
+  await write(
+    "Project A/note-2.md",
+    `---
+state: Drafting
+---
 
+# Note 2 (Project A)
+
+Second page in Project A.
+`
+  );
+  await write(
+    "Project A/note-3.md",
+    `---
+state: Focus
+---
+
+# Note 3 (Project A)
+
+Third page in Project A.
+`
+  );
+  await write(
+    "Project A/note-4.md",
+    `---
+state: Final
+---
+
+# Note 4 (Project A)
+
+Fourth page in Project A.
+`
+  );
+  await write(
+    "Project A/sample-readme.txt",
+    "Sample text file for manual testing of card display names.\n"
+  );
+  await write(
+    "Project A/reference-data.json",
+    JSON.stringify({ description: "Sample JSON for card display testing", items: [] })
+  );
+
+  // Project B (project with pages)
+  await write("Project B/folder-settings.pbs", FOLDER_SETTINGS_PBS);
   await write(
     "Project B/note-1.md",
     `---
@@ -156,19 +211,112 @@ state: Drafting
 Sample note for E2E tests.
 `
   );
-
-  // Non-markdown files for testing showFileExtForNonMdFiles setting
   await write(
-    "Project A/sample-readme.txt",
-    "Sample text file for manual testing of card display names.\n"
+    "Project B/note-2.md",
+    `---
+state: Idea
+---
+
+# Note 2 (Project B)
+
+Second page in Project B.
+`
   );
   await write(
-    "Project A/reference-data.json",
-    JSON.stringify({ description: "Sample JSON for card display testing", items: [] })
+    "Project B/note-3.md",
+    `---
+state: Shortlisted
+---
+
+# Note 3 (Project B)
+
+Third page in Project B.
+`
+  );
+  await write(
+    "Project B/note-4.md",
+    `---
+state: Archived
+---
+
+# Note 4 (Project B)
+
+Fourth page in Project B.
+`
   );
   await write(
     "Project B/notes-export.txt",
     "Exported notes data for manual QA.\n"
+  );
+
+  // Archive (plain folder with notes)
+  await write(
+    "Archive/past-project-notes.md",
+    `---
+state: Archived
+---
+
+# Past project notes
+
+Archived reference material.
+`
+  );
+  await write(
+    "Archive/old-ideas.md",
+    `---
+state: Idea
+---
+
+# Old ideas
+
+Ideas from previous sessions.
+`
+  );
+  await write(
+    "Archive/completed-work.md",
+    `---
+state: Final
+---
+
+# Completed work
+
+Summary of finished projects.
+`
+  );
+
+  // Reference (plain folder with notes)
+  await write(
+    "Reference/templates.md",
+    `---
+state: Idea
+---
+
+# Templates
+
+Reusable note templates.
+`
+  );
+  await write(
+    "Reference/guidelines.md",
+    `---
+state: Focus
+---
+
+# Guidelines
+
+Project guidelines and standards.
+`
+  );
+  await write(
+    "Reference/glossary.md",
+    `---
+state: Idea
+---
+
+# Glossary
+
+Term definitions and references.
+`
   );
 
   console.log("Generated qa-test-vault at", VAULT_ROOT);

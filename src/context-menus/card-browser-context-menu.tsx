@@ -1,11 +1,8 @@
-import { useAtomValue } from "jotai";
 import { Menu, TFolder } from "obsidian";
-import { EventHandler } from "react";
 import { openFileInSameLeaf } from "src/logic/file-access-processes";
-import { deleteFolderWithConfirmation } from "src/logic/file-processes";
 import { getGlobals, getShowHiddenFolders, hideHiddenFolders, unhideHiddenFolders } from "src/logic/stores";
 import { NewFolderModal } from "src/modals/new-folder-modal/new-folder-modal";
-import { createProject } from "src/utils/file-manipulation";
+import { createProject, getFolderSettings, setFolderAsProject, setFolderAsFolder } from "src/utils/file-manipulation";
 
 ////////
 ////////
@@ -17,14 +14,15 @@ export function registerCardBrowserContextMenu(el: HTMLElement, baseFolder: TFol
     const {plugin} = getGlobals();
     el.addEventListener('contextmenu', contextMenuHandler);
     
-    function contextMenuHandler(e) {
-        
+    async function contextMenuHandler(e) {
         // Prevent container divs opening their context menus
         e.stopPropagation();
 
         // Close other menus (Only works on iOS for some reason, but also only needed there)
         document.body.click();
 
+        const curFolder = commands.getCurFolder();
+        const folderSettings = await getFolderSettings(plugin.app.vault, curFolder);
         const showHiddenFolders = getShowHiddenFolders();
 
         const menu = new Menu();
@@ -46,10 +44,25 @@ export function registerCardBrowserContextMenu(el: HTMLElement, baseFolder: TFol
         menu.addItem((item) =>
             item.setTitle("Set as launch folder")
                 .onClick(() => {
-                    plugin.settings.access.launchFolder = commands.getCurFolder().path;
+                    plugin.settings.access.launchFolder = curFolder.path;
                     plugin.saveSettings();
                 })
         );
+        if (folderSettings.isProject) {
+            menu.addItem((item) =>
+                item.setTitle("Convert to folder")
+                    .onClick(async () => {
+                        await setFolderAsFolder(curFolder);
+                    })
+            );
+        } else {
+            menu.addItem((item) =>
+                item.setTitle("Convert to project")
+                    .onClick(async () => {
+                        await setFolderAsProject(curFolder);
+                    })
+            );
+        }
         menu.addSeparator();
         menu.addItem((item) =>
             item.setTitle("New note")

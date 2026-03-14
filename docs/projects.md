@@ -40,7 +40,7 @@ flowchart TB
 
 ### Converting folder to project
 
-1. Right-click a folder in the folder section.
+1. Right-click a folder in the folder section, or right-click the background when viewing a folder’s contents.
 2. Choose **Convert to project**.
 3. The folder is saved as a project with no status.
 4. It disappears from the folder section and appears in the no-status (stateless) section among notes.
