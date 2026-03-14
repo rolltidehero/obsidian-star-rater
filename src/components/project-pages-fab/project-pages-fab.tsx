@@ -47,7 +47,6 @@ export const ProjectPagesFAB = (props: ProjectPagesFABProps) => {
 
     function handlePageClick(file: TFile) {
         props.onNavigateToPage(file);
-        setMenuIsOpen(false);
     }
 
     function handleOpenProjectFolderClick() {
