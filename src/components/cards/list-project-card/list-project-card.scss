@@ -1,0 +1,5 @@
+@import '../list-note-card/list-note-card.scss';
+
+.ddc_pb_list-project-card {
+    @extend .ddc_pb_list-note-card;
+}

@@ -6,7 +6,7 @@ import { folderPathSanitize, parseFilepath, sanitizeFileFolderName } from "./str
 import { setFileState } from "src/logic/frontmatter-processes";
 import { FOLDER_SETTINGS_FILENAME } from "src/constants";
 import { getGlobals } from "src/logic/stores";
-import { DEFAULT_FOLDER_SETTINGS, DEFAULT_SETTINGS, FolderSettings } from "src/types/types-map";
+import { DEFAULT_FOLDER_SETTINGS, DEFAULT_SETTINGS, FolderSettings, StateSettings } from "src/types/types-map";
 import { getStateByName } from "src/logic/get-state-by-name";
 
 // //////////
@@ -244,4 +244,39 @@ export async function unhideFolder(folder: TFolder): Promise<void> {
     saveFolderSettings(plugin.app.vault, folder, folderSettings);
 }
 
+export async function setFolderAsProject(folder: TFolder): Promise<void> {
+    const {plugin} = getGlobals();
+    const folderSettings = await getFolderSettings(plugin.app.vault, folder);
+    folderSettings.isProject = true;
+    delete folderSettings.stateName;
+    await saveFolderSettings(plugin.app.vault, folder, folderSettings);
+    plugin.refreshFileDependants();
+}
+
+export async function setFolderAsFolder(folder: TFolder): Promise<void> {
+    const {plugin} = getGlobals();
+    const folderSettings = await getFolderSettings(plugin.app.vault, folder);
+    folderSettings.isProject = false;
+    delete folderSettings.stateName;
+    await saveFolderSettings(plugin.app.vault, folder, folderSettings);
+    plugin.refreshFileDependants();
+}
+
+export async function setFolderState(folder: TFolder, stateSettings: StateSettings | null): Promise<void> {
+    const {plugin} = getGlobals();
+    const folderSettings = await getFolderSettings(plugin.app.vault, folder);
+    if (stateSettings === null) {
+        delete folderSettings.stateName;
+    } else {
+        folderSettings.stateName = stateSettings.name;
+    }
+    await saveFolderSettings(plugin.app.vault, folder, folderSettings);
+    plugin.refreshFileDependants();
+}
+
+export async function getFolderStateName(folder: TFolder): Promise<string | null> {
+    const {plugin} = getGlobals();
+    const folderSettings = await getFolderSettings(plugin.app.vault, folder);
+    return folderSettings.stateName ?? null;
+}
 

@@ -1,0 +1,5 @@
+@import '../simple-note-card/simple-note-card.scss';
+
+.ddc_pb_simple-project-card {
+    @extend .ddc_pb_simple-note-card;
+}

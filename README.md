@@ -62,6 +62,7 @@ Below are the high level features in my current development plan along with when
 ## 🧪 Development
 - Testing setup and development: [docs/testing.md](docs/testing.md)
 - Plugin settings (display behaviour): [docs/settings.md](docs/settings.md)
+- Projects (folders as cards): [docs/projects.md](docs/projects.md)
 
 ## 🪳 Report a bug
 Found something that's not quite working right or do you have a feature request? Don't be shy, feel free to make some noise over on the [GitHub Issues](https://github.com/daledesilva/obsidian_project-browser/issues) page. But be sure to check if someone has already posted the same issue and comment on theirs if they have.

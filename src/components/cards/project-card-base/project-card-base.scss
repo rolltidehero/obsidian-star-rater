@@ -1,0 +1,11 @@
+@import '../note-card-base/note-card-base.scss';
+
+.ddc_pb_project-card-base {
+    border-top: 4px solid var(--color-base-50, rgba(255, 255, 255, 0.5));
+
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            border-top-color: var(--color-base-50, rgba(255, 255, 255, 0.5));
+        }
+    }
+}

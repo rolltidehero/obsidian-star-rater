@@ -1,8 +1,9 @@
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { Section, getStateSettings, orderSections } from "./section-processes";
-import { getFileFrontmatter, getFileStateSettings, getFileStateName, getFilePrioritySettings } from "./frontmatter-processes";
+import { getFileStateSettings, getFileStateName } from "./frontmatter-processes";
 import { getFileExcerpt } from "./file-processes";
 import { getGlobals } from "./stores";
+import { getFolderSettings, getFolderStateName } from "src/utils/file-manipulation";
 
 ///////////
 ///////////
@@ -168,6 +169,76 @@ export const getSortedSectionsInFolder = (folder: TFolder): Section[] => {
     itemsBySectionArr = orderSections(itemsBySectionArr);
 
     return itemsBySectionArr;
+}
+
+export async function getSortedSectionsInFolderAsync(folder: TFolder): Promise<Section[]> {
+    const {plugin} = getGlobals();
+    const vault = folder.vault;
+    const itemsInFolder = getItemsInFolder(folder);
+
+    interface ItemsBySectionMap {
+        [key: string]: Array<TFile | TFolder>
+    }
+
+    const itemsBySection: ItemsBySectionMap = {};
+
+    if (!itemsInFolder) {
+        return orderSections([]);
+    }
+
+    for (const item of itemsInFolder) {
+        if (item instanceof TFolder) {
+            const folderSettings = await getFolderSettings(vault, item);
+            if (folderSettings.isProject) {
+                const stateName = folderSettings.stateName ?? null;
+                const sectionKey = stateName ?? ' ';
+                if (!itemsBySection[sectionKey]) itemsBySection[sectionKey] = [];
+                itemsBySection[sectionKey].push(item);
+            } else {
+                if (!itemsBySection['folders']) itemsBySection['folders'] = [];
+                itemsBySection['folders'].push(item);
+            }
+        } else if (item instanceof TFile) {
+            if (item.extension.toLowerCase() === 'pbs') continue;
+
+            const displayState = getFileStateName(item);
+            if (displayState) {
+                if (!itemsBySection[displayState]) itemsBySection[displayState] = [];
+                itemsBySection[displayState].push(item);
+            } else {
+                if (!itemsBySection[' ']) itemsBySection[' '] = [];
+                itemsBySection[' '].push(item);
+            }
+        }
+    }
+
+    const itemsBySectionArr: Section[] = [];
+    for (const [key, value] of Object.entries(itemsBySection)) {
+        if (key === 'folders') {
+            itemsBySectionArr.push({
+                title: key,
+                type: 'folders',
+                items: value,
+                settings: plugin.settings.folders,
+            });
+        } else if (key === ' ') {
+            itemsBySectionArr.push({
+                title: key,
+                type: 'stateless',
+                items: value,
+                settings: plugin.settings.stateless,
+            });
+        } else {
+            itemsBySectionArr.push({
+                title: key,
+                type: 'state',
+                items: value,
+                settings: getStateSettings(key),
+            });
+        }
+    }
+
+    return orderSections(itemsBySectionArr);
 }
 
 export function filterSectionsByString(sections: Section[], searchStr: string) {

@@ -5,7 +5,7 @@ import { StateSection } from "../section/state-section";
 import { StatelessSection } from "../section/stateless-section";
 import { TFile, TFolder } from 'obsidian';
 import { BackButtonAndPath } from '../back-button-and-path/back-button-and-path';
-import { filterSectionsByString, getSortedSectionsInFolder, orderItemsInSections } from 'src/logic/folder-processes';
+import { filterSectionsByString, getSortedSectionsInFolderAsync } from 'src/logic/folder-processes';
 import { CardBrowserViewEState, CardBrowserViewState, PartialCardBrowserViewState } from 'src/views/card-browser-view/card-browser-view';
 import { v4 as uuidv4 } from 'uuid';
 import { registerCardBrowserContextMenu } from 'src/context-menus/card-browser-context-menu';
@@ -58,11 +58,23 @@ export const CardBrowser = (props: CardBrowserProps) => {
 
     // const [files, setFiles] = useState
     const v = plugin.app.vault;
-    // const [path, setPath] = React.useState(props.path);
-    const initialFolder = v.getFolderByPath(state.path) || v.getRoot(); // TODO: Check this is valid?
-    let sectionsOfItems = getSortedSectionsInFolder(initialFolder);
-    
-    filterSectionsByString(sectionsOfItems, searchStr);
+    const initialFolder = v.getFolderByPath(state.path) || v.getRoot();
+    const [sectionsOfItemsRaw, setSectionsOfItemsRaw] = React.useState<import('src/logic/section-processes').Section[] | null>(null);
+
+    React.useEffect(() => {
+        let cancelled = false;
+        getSortedSectionsInFolderAsync(initialFolder).then((sections) => {
+            if (!cancelled) setSectionsOfItemsRaw(sections);
+        });
+        return () => { cancelled = true; };
+    }, [initialFolder.path, refreshId]);
+
+    const sectionsOfItems = React.useMemo(() => {
+        if (sectionsOfItemsRaw === null) return null;
+        const copy = sectionsOfItemsRaw.map((s) => ({ ...s, items: [...s.items] }));
+        filterSectionsByString(copy, searchStr);
+        return copy;
+    }, [sectionsOfItemsRaw, searchStr]);
     
     const lastTouchedFilePath = eState?.lastTouchedFilePath || '';
 
@@ -120,7 +132,7 @@ export const CardBrowser = (props: CardBrowserProps) => {
                         'ddc_pb_nav-and-filter-section'
                     ])}
                 >
-                    {sectionsOfItems.map( (section) => (
+                    {(sectionsOfItems ?? []).map( (section) => (
                         <React.Fragment key={section.title}>
                             {section.type === "folders" && (<>
                                 <FolderSection section={section}/>
@@ -135,7 +147,7 @@ export const CardBrowser = (props: CardBrowserProps) => {
                     />
                 </div>
                 <div>
-                    {sectionsOfItems.map( (section, index) => (
+                    {(sectionsOfItems ?? []).map( (section, index) => (
                         <React.Fragment key={section.title}>
                             {section.type !== "folders" && (
                                 (!searchActive || (searchActive && section.items.length > 0)) && (

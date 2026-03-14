@@ -49,14 +49,20 @@ export function sortItemsByName(items: Array<TAbstractFile>, direction: 'ascendi
     return sortedItems;
 }
 
+function getStatCtime(item: TAbstractFile): number {
+    return item.stat?.ctime ?? 0;
+}
+
+function getStatMtime(item: TAbstractFile): number {
+    return item.stat?.mtime ?? 0;
+}
+
 export function sortItemsByCreationDate(items: Array<TAbstractFile>, direction: 'ascending' | 'descending'): TAbstractFile[] {
     const sortedItems = [...items];
 
     sortedItems.sort( (a: TAbstractFile, b: TAbstractFile) => {
-        if(!(a instanceof TFile) || !(b instanceof TFile)) return 0;
-
-        const aCtime = (a as TFile).stat.ctime;
-        const bCtime = (b as TFile).stat.ctime;
+        const aCtime = getStatCtime(a);
+        const bCtime = getStatCtime(b);
 
         if(direction === 'ascending') {
             return aCtime - bCtime;
@@ -72,10 +78,8 @@ export function sortItemsByModifiedDate(items: Array<TAbstractFile>, direction: 
     const sortedItems = [...items];
 
     sortedItems.sort( (a: TAbstractFile, b: TAbstractFile) => {
-        if(!(a instanceof TFile) || !(b instanceof TFile)) return 0;
-
-        const aMtime = (a as TFile).stat.mtime;
-        const bMtime = (b as TFile).stat.mtime;
+        const aMtime = getStatMtime(a);
+        const bMtime = getStatMtime(b);
 
         if(direction === 'ascending') {
             return aMtime - bMtime;

@@ -2,7 +2,7 @@ import { Menu, TFolder } from "obsidian";
 import { deleteFolderWithConfirmation } from "src/logic/file-processes";
 import { getGlobals } from "src/logic/stores";
 import { RenameFolderModal } from "src/modals/rename-folder-modal/rename-folder-modal";
-import { getFolderSettings, hideFolder, unhideFolder } from "src/utils/file-manipulation";
+import { getFolderSettings, hideFolder, unhideFolder, setFolderAsProject, setFolderAsFolder } from "src/utils/file-manipulation";
 
 ////////
 ////////
@@ -34,6 +34,23 @@ export function registerFolderContextMenu(props: registerFolderContextMenuProps)
                     plugin.saveSettings();
                 })
         );
+        if (folderSettings.isProject) {
+            menu.addItem((item) =>
+                item.setTitle("Convert to folder")
+                    .onClick(async () => {
+                        await setFolderAsFolder(props.folder);
+                        props.onFolderChange();
+                    })
+            );
+        } else {
+            menu.addItem((item) =>
+                item.setTitle("Convert to project")
+                    .onClick(async () => {
+                        await setFolderAsProject(props.folder);
+                        props.onFolderChange();
+                    })
+            );
+        }
         if(folderSettings.isHidden) {
             menu.addItem((item) =>
                 item.setTitle("Unhide folder")

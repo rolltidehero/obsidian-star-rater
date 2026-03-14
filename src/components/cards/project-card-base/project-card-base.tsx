@@ -1,0 +1,59 @@
+import './project-card-base.scss';
+import { TFolder } from "obsidian";
+import * as React from "react";
+import { registerProjectContextMenu } from 'src/context-menus/project-context-menu';
+import { CardBrowserContext } from 'src/components/card-browser/card-browser';
+import { getGlobals } from 'src/logic/stores';
+import classNames from 'classnames';
+
+/////////
+/////////
+
+export interface ProjectCardBaseProps {
+    folder: TFolder,
+    className?: string,
+    children?: React.ReactNode,
+    rotation?: number,
+}
+
+export const ProjectCardBase = (props: ProjectCardBaseProps) => {
+    const {plugin} = getGlobals();
+    const cardBrowserContext = React.useContext(CardBrowserContext);
+    const cardRef = React.useRef<HTMLElement>(null);
+
+    React.useEffect(() => {
+        if (!plugin) return;
+        if (cardRef.current) {
+            registerProjectContextMenu({
+                projectButtonEl: cardRef.current,
+                folder: props.folder,
+                onProjectChange: () => {
+                    cardBrowserContext.rerender();
+                },
+            });
+        }
+    }, []);
+
+    return (
+        <article
+            ref={cardRef}
+            className={classNames([
+                'ddc_pb_project-card',
+                'ddc_pb_project-card-base',
+                props.className,
+            ])}
+            onClick={(event) => {
+                if (event.ctrlKey || event.metaKey) {
+                    cardBrowserContext.openFolderInSameLeaf(props.folder);
+                } else {
+                    cardBrowserContext.openFolderInSameLeaf(props.folder);
+                }
+            }}
+            style={{
+                rotate: props.rotation ? props.rotation + 'deg' : undefined,
+            }}
+        >
+            {props.children}
+        </article>
+    );
+};

@@ -1,12 +1,15 @@
-.ddc_pb_state-section .ddc_pb_note-card-base {
+.ddc_pb_state-section .ddc_pb_note-card-base,
+.ddc_pb_state-section .ddc_pb_project-card-base {
     background: var(--color-base-00);
 }
 
-.ddc_pb_stateless-section .ddc_pb_note-card-base {
+.ddc_pb_stateless-section .ddc_pb_note-card-base,
+.ddc_pb_stateless-section .ddc_pb_project-card-base {
     background: var(--color-base-10);
 }
 
-.ddc_pb_note-card-base {
+.ddc_pb_note-card-base,
+.ddc_pb_project-card-base {
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
