@@ -10,7 +10,10 @@ export const getFileDisplayName = (file: TFile): string => {
     const aliases = getFileAliases(file);
     if(plugin.settings.useAliases && aliases) {
         return aliases[0];
-    } else {
-        return file.basename;
     }
+    const isMarkdownFile = (file.extension ?? 'md').toLowerCase() === 'md';
+    if(!isMarkdownFile && plugin.settings.showFileExtForNonMdFiles) {
+        return file.name;
+    }
+    return file.basename;
 }

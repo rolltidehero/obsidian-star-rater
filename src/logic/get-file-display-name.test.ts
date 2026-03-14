@@ -42,6 +42,38 @@ describe("getFileDisplayName", () => {
       expect(getFileDisplayName(file)).toBe("Base");
     });
   });
+
+  test("returns file.name for non-md file when showFileExtForNonMdFiles enabled", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: true } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayName } = require("./get-file-display-name");
+      const file = { basename: "document", name: "document.pdf", extension: "pdf" } as any;
+      expect(getFileDisplayName(file)).toBe("document.pdf");
+    });
+  });
+
+  test("returns basename for non-md file when showFileExtForNonMdFiles disabled", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: false } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayName } = require("./get-file-display-name");
+      const file = { basename: "document", name: "document.pdf", extension: "pdf" } as any;
+      expect(getFileDisplayName(file)).toBe("document");
+    });
+  });
 });
 
 

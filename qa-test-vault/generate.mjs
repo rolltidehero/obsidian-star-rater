@@ -38,6 +38,7 @@ const PLUGIN_DATA_JSON = {
     launchFolder: "/",
   },
   useAliases: true,
+  showFileExtForNonMdFiles: true,
   showStateMenu: true,
   loopStatesWhenCycling: true,
   folders: { defaultView: "Small" },
@@ -154,6 +155,20 @@ state: Drafting
 
 Sample note for E2E tests.
 `
+  );
+
+  // Non-markdown files for testing showFileExtForNonMdFiles setting
+  await write(
+    "Project A/sample-readme.txt",
+    "Sample text file for manual testing of card display names.\n"
+  );
+  await write(
+    "Project A/reference-data.json",
+    JSON.stringify({ description: "Sample JSON for card display testing", items: [] })
+  );
+  await write(
+    "Project B/notes-export.txt",
+    "Exported notes data for manual QA.\n"
   );
 
   console.log("Generated qa-test-vault at", VAULT_ROOT);

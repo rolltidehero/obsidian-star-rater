@@ -56,6 +56,7 @@ export interface PluginSettings_0_3_0 {
 		launchFolder: string,
 	}
 	useAliases: boolean,
+	showFileExtForNonMdFiles: boolean,
 	showStateMenu: boolean,
 	loopStatesWhenCycling: boolean,
 	folders: FolderSectionSettings_0_0_5,
@@ -87,6 +88,7 @@ export const DEFAULT_PLUGIN_SETTINGS_0_3_0: PluginSettings_0_3_0 = {
 		launchFolder: '/',
 	},
 	useAliases: true,
+	showFileExtForNonMdFiles: true,
 	showStateMenu: true,
 	loopStatesWhenCycling: true,
 	folders: {
