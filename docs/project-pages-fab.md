@@ -1,43 +1,72 @@
 # Project Pages FAB
 
-Reference for the Project Pages floating action button (FAB) shown when editing a note inside a project.
+Reference for the Project Pages floating action button (FAB) shown when editing a note in the editor.
 
 ## Why it exists
 
-When working in a project, you often need to jump between its pages. The Project Pages FAB provides quick navigation to other pages in the same project without leaving the note view. It appears in the same bottom-right position as the project browser FAB for consistency.
+When working in a project, you often need to jump between its pages. The Project Pages FAB provides quick navigation to other pages in the same project without leaving the note view. It also appears when viewing notes outside a project, offering actions to create projects or add files. It appears in the same bottom-right position as the project browser FAB for consistency.
 
 ## Conceptual understanding
 
-- **Project Pages FAB** — A floating button with a pages icon that appears when the open note is inside a project folder. Clicking it reveals the names of other pages in that project.
+- **Project Pages FAB** — A floating button with a pages icon that appears whenever a markdown file is open. Its menu varies: for notes inside a project, it shows other project pages and an Add page action; for notes outside a project, it shows Folder, New file, and Add page.
 - **Pages** — The direct file children of the project folder (excluding `folder-settings.pbs`). Notes in subfolders of a project are not included.
 
 ## Flows and relationships
 
 ```mermaid
 flowchart TB
-    subgraph NoteView [Note inside project]
-        FAB[Pages FAB]
-        PageList[Page buttons above FAB]
-        CurrentNote[Current note]
+    subgraph NoteInProject [Note inside project]
+        FAB1[Pages FAB]
+        PageList[Page buttons]
+        AddPage1[Add page]
+        Folder1[Folder button]
         
-        FAB -->|Click| PageList
-        PageList -->|Click page| Navigate[Navigate to page]
-        Navigate --> OpenStateMenu[Open state menu on new page]
+        FAB1 -->|Click| PageList
+        FAB1 --> AddPage1
+        FAB1 --> Folder1
+    end
+
+    subgraph NoteOutsideProject [Note outside project]
+        FAB2[Pages FAB]
+        Folder2[Folder button]
+        NewFile[New file]
+        AddPage2[Add page]
+        
+        FAB2 -->|Click| Folder2
+        FAB2 --> NewFile
+        FAB2 --> AddPage2
     end
 ```
 
 ### When the FAB appears
 
 1. You open a note (markdown file) in the editor.
-2. The note’s parent folder is a project (has `folder-settings.pbs` with `isProject: true`).
-3. The FAB appears in the bottom-right corner.
+2. The FAB appears in the bottom-right corner for any open markdown note, whether inside a project or not.
+3. If the note’s parent folder is `null` (e.g. file at vault root), the vault root is used for folder actions.
 
-### Using the FAB
+### Using the FAB — note inside a project
 
 1. Click the FAB to open the pages menu.
-2. Other project pages appear as floating buttons above the FAB, aligned to its right edge.
-3. Click a page to navigate to it in the same leaf. The state menu on that page opens by default.
-4. Click the FAB again or click anywhere else (note content or embeds) to close the menu.
+2. Other project pages appear as floating buttons above the FAB.
+3. **Add page** — creates a new file in the project and opens it.
+4. **Folder** (labeled with the project folder name) — opens that folder in the project browser.
+5. Click a page to navigate to it. The state menu on that page opens by default.
+6. Click the FAB again or click anywhere else to close the menu.
+
+### Using the FAB — note outside a project
+
+1. Click the FAB to open the menu.
+2. **Folder** — opens the note’s parent folder in the project browser.
+3. **New file** — creates a new markdown file in the parent folder and opens it.
+4. **Add page** — creates a project and moves the current note into it, then adds a second page and opens it. The note becomes the first page; the new file is the second.
+
+### Add page (note outside project) flow
+
+1. A new subfolder is created in the note’s parent, named from the note’s basename (or with `(2)`, `(3)`, etc. if a conflict exists).
+2. The current note is moved into that folder.
+3. The folder is marked as a project (`folder-settings.pbs` with `isProject: true`).
+4. A second page (new file) is created in the project folder.
+5. The second page opens in the same leaf.
 
 ### Visual feedback
 
@@ -46,13 +75,16 @@ flowchart TB
 ## Technical implementation
 
 - **Component**: `ProjectPagesFAB` in `src/components/project-pages-fab/`
-- **Integration**: Rendered from `registerMarkdownViewMods` when the active file’s parent is a project (`getFolderSettings().isProject === true`).
-- **Page list**: Derived from `getItemsInFolder(projectFolder)` — filtered to `TFile`, excludes `.pbs`, excludes current file, sorted by name.
+- **Integration**: Rendered from `registerMarkdownViewMods` whenever the active file is a markdown file. Parent folder is `activeFile.parent ?? vault.getRoot()`.
+- **Page list**: Derived from `getItemsInFolder(projectFolder)` — filtered to `TFile`, excludes `.pbs`, sorted by name.
 - **Navigation**: Uses `openFileInSameLeaf` followed by `openStateMenuIfClosed`.
+- **Add page (non-project)**: `createProjectFromNote` in `src/utils/file-manipulation.ts` — creates folder, moves note, sets project, creates second page.
 - **Click-outside close**: `pointerdown` on `document`; closes when the target is outside the FAB/buttons container.
 
 ## Technical gotchas
 
 - **Empty or single-page projects** — The FAB still appears; the page list is simply empty when there are no other pages.
-- **Notes in subfolders** — Only notes whose **direct parent** is the project folder see the FAB. Notes inside subfolders of a project do not.
+- **Notes in subfolders** — Only notes whose **direct parent** is the project folder see the project menu. Notes inside subfolders of a project do not.
+- **Note at vault root** — `activeFile.parent` may be null; the vault root folder is used for all folder actions.
+- **Folder name conflict** — When creating a project from a note, if a sibling folder with the same name exists, `(2)`, `(3)`, etc. are appended.
 - **Embed content** — Clicks inside transcluded or embedded content close the menu, since those elements are part of the document and the `pointerdown` target is outside the FAB.

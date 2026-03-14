@@ -8,7 +8,7 @@ import { getGlobals, getStateMenuSettings } from 'src/logic/stores';
 import { toggleStateMenu } from 'src/logic/toggle-state-menu';
 import { openStateMenuIfClosed } from 'src/logic/toggle-state-menu';
 import { openFileInSameLeaf } from 'src/logic/file-access-processes';
-import { getFolderSettings } from 'src/utils/file-manipulation';
+import { createProject, createProjectFromNote, getFolderSettings } from 'src/utils/file-manipulation';
 import { CARD_BROWSER_VIEW_TYPE } from 'src/views/card-browser-view/card-browser-view';
 
 //////////
@@ -83,7 +83,11 @@ function addStateHeader() {
     }
 }
 
-async function addOrRemoveProjectPagesFAB() {
+interface AddOrRemoveProjectPagesFABOptions {
+    keepMenuOpen?: boolean;
+}
+
+async function addOrRemoveProjectPagesFAB(options?: AddOrRemoveProjectPagesFABOptions) {
     const {plugin} = getGlobals();
     const workspace = plugin.app.workspace;
     const leaf = workspace.getActiveViewOfType(ItemView)?.leaf;
@@ -93,15 +97,17 @@ async function addOrRemoveProjectPagesFAB() {
     const containerEl = leaf.view.containerEl;
     let fabContainerEl = containerEl.find(`.${projectPagesFabContainerClassName}`);
 
-    const parentFolder = activeFile?.parent;
-    const parentIsProject = parentFolder instanceof TFolder
-        ? (await getFolderSettings(plugin.app.vault, parentFolder)).isProject === true
-        : false;
+    const resolvedParentFolder = activeFile?.parent ?? plugin.app.vault.getRoot();
+    const parentIsProject =
+        resolvedParentFolder instanceof TFolder &&
+        (await getFolderSettings(plugin.app.vault, resolvedParentFolder)).isProject === true;
 
-    if (!activeFile || !parentIsProject) {
+    if (!activeFile) {
         removeProjectPagesFAB(containerEl);
         return;
     }
+
+    const parentFolder = resolvedParentFolder as TFolder;
 
     function onNavigateToPage(file: TFile) {
         openFileInSameLeaf(file);
@@ -118,6 +124,32 @@ async function addOrRemoveProjectPagesFAB() {
         }
     }
 
+    async function onNewFile() {
+        const newFile = await createProject({
+            parentFolder,
+            projectName: 'Untitled',
+        });
+        openFileInSameLeaf(newFile);
+        // Defer refresh; vault events in FAB will update the page list
+        setTimeout(() => addOrRemoveProjectPagesFAB({ keepMenuOpen: true }), 0);
+    }
+
+    async function onAddPage() {
+        if (parentIsProject) {
+            const newFile = await createProject({
+                parentFolder,
+                projectName: 'Untitled',
+            });
+            openFileInSameLeaf(newFile);
+            openStateMenuIfClosed();
+        } else {
+            const newFile = await createProjectFromNote(activeFile, parentFolder);
+            openFileInSameLeaf(newFile);
+        }
+        // Defer refresh; vault events in FAB will update the page list
+        setTimeout(() => addOrRemoveProjectPagesFAB({ keepMenuOpen: true }), 0);
+    }
+
     if (!fabContainerEl) {
         fabContainerEl = containerEl.createDiv(projectPagesFabContainerClassName);
         containerEl.appendChild(fabContainerEl);
@@ -131,8 +163,12 @@ async function addOrRemoveProjectPagesFAB() {
             <ProjectPagesFAB
                 projectFolder={parentFolder}
                 currentFile={activeFile}
+                parentIsProject={parentIsProject}
+                initialMenuOpen={options?.keepMenuOpen}
                 onNavigateToPage={onNavigateToPage}
                 onOpenProjectFolder={onOpenProjectFolder}
+                onNewFile={onNewFile}
+                onAddPage={onAddPage}
             />
         );
     }

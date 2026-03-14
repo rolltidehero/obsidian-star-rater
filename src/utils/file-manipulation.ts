@@ -116,6 +116,56 @@ export async function renameTFolder(folder: TFolder, safeName: string): Promise<
     }
 }
 
+/**
+ * Moves a file into the target folder. Returns the new path on success, null on failure.
+ */
+export async function moveFileToFolder(file: TFile, targetFolder: TFolder): Promise<string | null> {
+    const newPath = targetFolder.path ? `${targetFolder.path}/${file.name}` : file.name;
+    try {
+        await file.vault.rename(file, newPath);
+        return newPath;
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
+/**
+ * Creates a project from a note that is outside a project: creates a new project folder,
+ * moves the note into it, marks it as a project, adds a second page, and returns that new page.
+ */
+export async function createProjectFromNote(note: TFile, parentFolder: TFolder): Promise<TFile> {
+    const vault = parentFolder.vault;
+    const baseName = sanitizeFileFolderName(note.basename);
+    if (!baseName) {
+        throw new Error('Note basename is empty after sanitization');
+    }
+
+    let folderName = baseName;
+    let version = 1;
+    let newFolderPath = parentFolder.path ? `${parentFolder.path}/${folderName}` : folderName;
+
+    while (vault.getAbstractFileByPath(newFolderPath)) {
+        version += 1;
+        folderName = `${baseName} (${version})`;
+        newFolderPath = parentFolder.path ? `${parentFolder.path}/${folderName}` : folderName;
+    }
+
+    const newFolder = await createFolder(newFolderPath);
+    const moved = await moveFileToFolder(note, newFolder);
+    if (!moved) {
+        throw new Error(`Failed to move note into project folder`);
+    }
+
+    await setFolderAsProject(newFolder);
+
+    const secondPage = await createProject({
+        parentFolder: newFolder,
+        projectName: 'Untitled',
+    });
+
+    return secondPage;
+}
 
 /**
  * Recursively create folders, if they don't exist.
