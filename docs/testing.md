@@ -11,7 +11,7 @@ The test setup enables automated verification of logic, migrations, and UI behav
 - **Unit tests** — Jest with jsdom, for utilities, migrations, and logic.
 - **Component tests** — React Testing Library for React components (when added).
 - **E2E tests** — WebdriverIO + wdio-obsidian-service, run plugin in Obsidian.
-- **Manual QA** — `npm run open-qa` to build and open Obsidian with a test vault.
+- **Manual QA** — `npm run open-qa` to build and open an isolated Obsidian instance with a test vault.
 - **CI** — GitHub Actions runs unit and E2E tests on push/PR to main.
 
 ## Running tests
@@ -69,11 +69,11 @@ Use `makePlugin()`, `makeTFile()`, and `makeTFolder()` from `tests/helpers/compo
 ## Manual QA
 
 ```bash
-npm run open-qa           # Build, install into qa-test-vault, open Obsidian
+npm run open-qa           # Build, install into qa-test-vault, open isolated Obsidian
 npm run open-qa-verbose   # Same, with Obsidian verbose logging
 ```
 
-The `qa-test-vault/` directory is created and populated with the built plugin. Obsidian opens with that vault. The vault is in `.gitignore`.
+Manual QA uses `obsidian-launcher` (like E2E tests) to launch a sandboxed Obsidian instance — separate from your system installation, so it opens only the QA vault and does not affect your normal vaults. The `qa-test-vault/` directory is created and populated; the built plugin is installed automatically. The vault is in `.gitignore`.
 
 ## CI
 
