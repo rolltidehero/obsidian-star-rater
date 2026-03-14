@@ -1,0 +1,46 @@
+.ddc_pb_project-pages-fab {
+    position: absolute;
+    bottom: 100px;
+    right: min(100px, 5vw);
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+
+    .ddc_pb_project-pages-fab__page-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .ddc_pb_project-pages-fab__page-button {
+        cursor: pointer;
+        --size: min(40px, 8vw);
+        min-height: var(--size);
+        max-width: 200px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9em;
+    }
+
+    .ddc_pb_project-pages-fab__main-button {
+        cursor: pointer;
+        --size: min(80px, 15vw);
+        width: var(--size);
+        height: var(--size);
+        padding: 25% !important; // Important to override Obsidian padding at all media sizes
+        border-radius: 50%;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+        &.ddc_pb_active {
+            color: var(--text-on-accent);
+            background-color: var(--interactive-accent);
+        }
+    }
+}

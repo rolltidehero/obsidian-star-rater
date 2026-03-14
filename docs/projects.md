@@ -71,3 +71,7 @@ flowchart TB
 - **Empty folders** — An empty folder can be a project. It will appear in the no-status section.
 - **folder-settings.pbs** — This file is created inside the folder when you convert to project or change status. It is excluded from the note list.
 - **Search** — Projects are filtered by name like notes when using the search field.
+
+## Related
+
+- [Project Pages FAB](project-pages-fab.md) — Floating action button for quick navigation between pages when viewing a note inside a project.
