@@ -9,6 +9,7 @@ import { toggleStateMenu } from 'src/logic/toggle-state-menu';
 import { openStateMenuIfClosed } from 'src/logic/toggle-state-menu';
 import { openFileInSameLeaf } from 'src/logic/file-access-processes';
 import { getFolderSettings } from 'src/utils/file-manipulation';
+import { CARD_BROWSER_VIEW_TYPE } from 'src/views/card-browser-view/card-browser-view';
 
 //////////
 //////////
@@ -107,6 +108,16 @@ async function addOrRemoveProjectPagesFAB() {
         openStateMenuIfClosed();
     }
 
+    function onOpenProjectFolder(folder: TFolder) {
+        const activeLeaf = workspace.getMostRecentLeaf();
+        if (activeLeaf) {
+            activeLeaf.setViewState({
+                type: CARD_BROWSER_VIEW_TYPE,
+                state: { path: folder.path },
+            });
+        }
+    }
+
     if (!fabContainerEl) {
         fabContainerEl = containerEl.createDiv(projectPagesFabContainerClassName);
         containerEl.appendChild(fabContainerEl);
@@ -121,6 +132,7 @@ async function addOrRemoveProjectPagesFAB() {
                 projectFolder={parentFolder}
                 currentFile={activeFile}
                 onNavigateToPage={onNavigateToPage}
+                onOpenProjectFolder={onOpenProjectFolder}
             />
         );
     }

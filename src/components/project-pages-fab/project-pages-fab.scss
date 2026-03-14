@@ -27,6 +27,28 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 0.9em;
+
+        &--active {
+            cursor: default;
+            color: var(--text-on-accent);
+            background-color: var(--interactive-accent);
+        }
+    }
+
+    .ddc_pb_project-pages-fab__folder-button {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: min(40px, 8vw);
+        max-width: 200px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9em;
     }
 
     .ddc_pb_project-pages-fab__main-button {
