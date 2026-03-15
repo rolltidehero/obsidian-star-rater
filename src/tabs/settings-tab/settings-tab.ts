@@ -1,4 +1,5 @@
 import { insertStateEditor } from 'src/components/state-editor/state-editor';
+import { insertFileTypeEditor } from 'src/components/file-type-editor/file-type-editor';
 import 'src/shared/settings.scss';
 import { PluginSettingTab, Setting } from "obsidian";
 import MyPlugin from "src/main";
@@ -35,6 +36,7 @@ export class MySettingsTab extends PluginSettingTab {
 		insertMoreInfoLinks(containerEl);
 		insertAccessSettings(containerEl, this.display);
 		insertStateSettings(containerEl, this.display);
+		insertFileTypeSettings(containerEl, this.display);
 		insertPrioritySettings(containerEl, this.display);
 		insertNoteSettings(containerEl, this.display);
 			
@@ -207,6 +209,15 @@ function insertStateSettings(containerEl: HTMLElement, refresh: Function) {
 				plugin.saveSettings();
 			});
 		})
+}
+
+function insertFileTypeSettings(containerEl: HTMLElement, refresh: Function) {
+	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
+	sectionEl.createEl('h2', { text: 'File type visibility' });
+	sectionEl.createEl('p', {
+		text: 'Control which file types appear in the project browser view and project pages menu. Drag items between visible and hidden to change their visibility.',
+	});
+	insertFileTypeEditor(sectionEl);
 }
 
 function insertPrioritySettings(containerEl: HTMLElement, refresh: Function) {

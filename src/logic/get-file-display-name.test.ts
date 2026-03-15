@@ -74,6 +74,38 @@ describe("getFileDisplayName", () => {
       expect(getFileDisplayName(file)).toBe("document");
     });
   });
+
+  test("returns basename for canvas file regardless of showFileExtForNonMdFiles", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: true } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayName } = require("./get-file-display-name");
+      const file = { basename: "my-canvas", name: "my-canvas.canvas", extension: "canvas" } as any;
+      expect(getFileDisplayName(file)).toBe("my-canvas");
+    });
+  });
+
+  test("returns basename for base file regardless of showFileExtForNonMdFiles", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: true } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayName } = require("./get-file-display-name");
+      const file = { basename: "my-base", name: "my-base.base", extension: "base" } as any;
+      expect(getFileDisplayName(file)).toBe("my-base");
+    });
+  });
 });
 
 

@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { FileText, LayoutDashboard, Table } from 'lucide-react';
 import './note-card-base.scss';
 import { TFile } from "obsidian";
 import * as React from "react";
@@ -6,11 +7,18 @@ import { registerFileContextMenu } from 'src/context-menus/file-context-menu';
 import { CardBrowserContext } from 'src/components/card-browser/card-browser';
 import { getGlobals } from 'src/logic/stores';
 import { openFileInBackgroundTab, openFileInSameLeaf } from 'src/logic/file-access-processes';
-import { getFileDisplayName } from 'src/logic/get-file-display-name';
 import { getFilePrioritySettings } from 'src/logic/frontmatter-processes';
 
 /////////
 /////////
+
+function getFileTypeIcon(extension: string): React.ComponentType<{ size?: number; className?: string }> | null {
+    const ext = (extension ?? '').toLowerCase();
+    if (ext === 'md') return FileText;
+    if (ext === 'canvas') return LayoutDashboard;
+    if (ext === 'base') return Table;
+    return null;
+}
 
 export interface NoteCardBaseProps {
     file: TFile,
@@ -28,6 +36,7 @@ export const NoteCardBase = (props: NoteCardBaseProps) => {
 
     const prioritySettings = getFilePrioritySettings(props.file);
     const showSettleTransition = props.file.path === cardBrowserContext.lastTouchedFilePath;
+    const FileTypeIcon = getFileTypeIcon(props.file.extension ?? '');
 
     React.useEffect( () => {
         if(!plugin) return;
@@ -62,6 +71,11 @@ export const NoteCardBase = (props: NoteCardBaseProps) => {
                 rotate: props.rotation ? props.rotation + 'deg' : undefined,
             }}
         >
+            {FileTypeIcon && (
+                <span className="ddc_pb_note-card-type-icon" aria-hidden>
+                    <FileTypeIcon size={14} className="ddc_pb_note-card-type-icon-svg" />
+                </span>
+            )}
             {props.children}
         </article>
     </>

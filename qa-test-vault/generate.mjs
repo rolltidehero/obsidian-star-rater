@@ -22,6 +22,11 @@ async function write(path, content) {
   await writeFile(join(VAULT_ROOT, path), content, "utf8");
 }
 
+async function writeBinary(path, base64Content) {
+  const buffer = Buffer.from(base64Content, "base64");
+  await writeFile(join(VAULT_ROOT, path), buffer);
+}
+
 // Plugin version for pre-seeded data (suppresses onboarding)
 const PLUGIN_VERSION = "0.3.2";
 
@@ -126,12 +131,26 @@ const FOLDER_SETTINGS_PBS = JSON.stringify(
   2
 );
 
+// Minimal valid binary fixtures for file type visibility testing (base64)
+const FIXTURE_PNG_1X1 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQHwAABQAGP+OTAAAAAASUVORK5CYII=";
+// Minimal WAV: 44-byte header + 2 bytes silence (8-bit mono 8kHz)
+const FIXTURE_WAV_MINIMAL =
+  "UklGRiIAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAA==";
+const FIXTURE_PDF_MINIMAL =
+  "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKdHJhaWxlcgo8PAovU2l6ZSA0Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgoxNDYKJSVFT0YK";
+const FIXTURE_MP3_SILENT =
+  "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV////////////////////////////////////////////AAAAAExhdmM1OC4xMwAAAAAAAAAAAAAAACQDkAAAAAAAAAGw9wrNaQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/+MYxAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDsAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxHYAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+const FIXTURE_GIF_1X1 =
+  "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
 async function main() {
   await ensureDir(join(VAULT_ROOT, ".obsidian/plugins/project-browser"));
   await ensureDir(join(VAULT_ROOT, "Project A"));
   await ensureDir(join(VAULT_ROOT, "Project B"));
   await ensureDir(join(VAULT_ROOT, "Archive"));
   await ensureDir(join(VAULT_ROOT, "Reference"));
+  await ensureDir(join(VAULT_ROOT, "File Types Test"));
 
   await write(".obsidian/app.json", JSON.stringify({ safeMode: false }));
   await write(
@@ -318,6 +337,43 @@ state: Idea
 Term definitions and references.
 `
   );
+
+  // File Types Test — fixtures for file type visibility testing
+  await writeBinary("File Types Test/sample.png", FIXTURE_PNG_1X1);
+  await writeBinary("File Types Test/sample.pdf", FIXTURE_PDF_MINIMAL);
+  await writeBinary("File Types Test/sample.mp3", FIXTURE_MP3_SILENT);
+  await writeBinary("File Types Test/sample.wav", FIXTURE_WAV_MINIMAL);
+  await writeBinary("File Types Test/sample.gif", FIXTURE_GIF_1X1);
+  await write(
+    "File Types Test/sample.svg",
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="#ccc"/></svg>'
+  );
+  await write(
+    "File Types Test/sample.canvas",
+    JSON.stringify({
+      nodes: [],
+      edges: [],
+    })
+  );
+  await write("File Types Test/sample.base", "views: []\n");
+  await write(
+    "File Types Test/plugin-config.json",
+    JSON.stringify({ enabled: true, version: "1.0" })
+  );
+  await write("File Types Test/settings.yaml", "theme: dark\nfontSize: 14\n");
+  await write("File Types Test/debug.log", "[2024-01-01 12:00:00] Application started\n");
+  await write(
+    "File Types Test/config.toml",
+    "[general]\nname = \"test\"\nversion = \"1.0\"\n"
+  );
+  await write("File Types Test/readme.md", "# File Types Test\n\nFolder for testing file type visibility.\n");
+
+  // Project A — add media files for project context testing
+  await writeBinary("Project A/sample.png", FIXTURE_PNG_1X1);
+  await writeBinary("Project A/sample.pdf", FIXTURE_PDF_MINIMAL);
+  await writeBinary("Project A/sample.mp3", FIXTURE_MP3_SILENT);
+  await writeBinary("Project A/sample.wav", FIXTURE_WAV_MINIMAL);
+  await write("Project A/sample.base", "views: []\n");
 
   console.log("Generated qa-test-vault at", VAULT_ROOT);
 }

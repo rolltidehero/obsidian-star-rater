@@ -76,7 +76,7 @@ flowchart TB
 
 - **Component**: `ProjectPagesFAB` in `src/components/project-pages-fab/`
 - **Integration**: Rendered from `registerMarkdownViewMods` whenever the active file is a markdown file. Parent folder is `activeFile.parent ?? vault.getRoot()`.
-- **Page list**: Derived from `getItemsInFolder(projectFolder)` — filtered to `TFile`, excludes `.pbs`, sorted by name.
+- **Page list**: Derived from `getItemsInFolder(projectFolder)` — filtered to `TFile`, filtered by visible file types (`isExtensionVisible`), sorted by name.
 - **Navigation**: Uses `openFileInSameLeaf` followed by `openStateMenuIfClosed`.
 - **Add page (non-project)**: `createProjectFromNote` in `src/utils/file-manipulation.ts` — creates folder, moves note, sets project, creates second page.
 - **Click-outside close**: `pointerdown` on `document`; closes when the target is outside the FAB/buttons container.

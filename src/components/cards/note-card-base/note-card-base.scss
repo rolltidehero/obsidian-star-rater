@@ -13,6 +13,7 @@
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
+    position: relative;
 
     outline: 0 solid rgba(0,0,0,0);
     
@@ -40,6 +41,21 @@
         animation-duration: 3s;
         animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
         animation-fill-mode: backwards;
+    }
+
+    .ddc_pb_note-card-type-icon {
+        position: absolute;
+        top: 0.25em;
+        right: 0.25em;
+        opacity: 0.4;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ddc_pb_note-card-type-icon-svg {
+            color: var(--text-muted, rgba(255, 255, 255, 0.6));
+        }
     }
 }
 

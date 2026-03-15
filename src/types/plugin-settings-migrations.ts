@@ -4,6 +4,7 @@ import { DEFAULT_PLUGIN_SETTINGS_0_1_0, DEFAULT_STATE_SETTINGS_0_1_0, PluginSett
 import * as semVer from 'semver';
 import { PluginSettings } from "./types-map";
 import { DEFAULT_PLUGIN_SETTINGS_0_3_0, DEFAULT_STATE_SETTINGS_0_3_0, PluginSettings_0_3_0 } from "./plugin-settings_0_3_0";
+import { DEFAULT_PLUGIN_SETTINGS_0_4_0, PluginSettings_0_4_0 } from "./plugin-settings_0_4_0";
 import { findItemByProperty } from "./migration-helpers";
 
 ///////////
@@ -13,8 +14,9 @@ export function migrateOutdatedSettings(settings: {settingsVersion: string}): Pl
     let updatedSettings = settings;
     
     if(!settings.settingsVersion)                         updatedSettings = migrate_0_0_4_to_0_0_5(settings as unknown as PluginSettings_0_0_4);
-    if(semVer.lt(settings.settingsVersion, '0.1.0'))      updatedSettings = migrate_0_0_5_to_0_1_0(settings as unknown as PluginSettings_0_0_5);
-    if(semVer.lt(settings.settingsVersion, '0.3.0'))      updatedSettings = migrate_0_1_0_to_0_3_0(settings as unknown as PluginSettings_0_1_0);
+    if(semVer.lt(updatedSettings.settingsVersion, '0.1.0'))      updatedSettings = migrate_0_0_5_to_0_1_0(updatedSettings as unknown as PluginSettings_0_0_5);
+    if(semVer.lt(updatedSettings.settingsVersion, '0.3.0'))      updatedSettings = migrate_0_1_0_to_0_3_0(updatedSettings as unknown as PluginSettings_0_1_0);
+    if(semVer.lt(updatedSettings.settingsVersion, '0.4.0'))      updatedSettings = migrate_0_3_0_to_0_4_0(updatedSettings as unknown as PluginSettings_0_3_0);
     
     if(JSON.stringify(updatedSettings) != JSON.stringify(settings)) {
         console.log('Project Browser: Migrated outdated settings');
@@ -173,5 +175,17 @@ export function migrate_0_1_0_to_0_3_0(oldSettings: PluginSettings_0_1_0): Plugi
 
     };
     
+    return JSON.parse(JSON.stringify(newSettings));
+}
+
+///////////
+
+export function migrate_0_3_0_to_0_4_0(oldSettings: PluginSettings_0_3_0): PluginSettings_0_4_0 {
+    const newSettings: PluginSettings_0_4_0 = {
+        ...DEFAULT_PLUGIN_SETTINGS_0_4_0,
+        ...oldSettings,
+        settingsVersion: '0.4.0',
+        fileTypes: { ...DEFAULT_PLUGIN_SETTINGS_0_4_0.fileTypes },
+    };
     return JSON.parse(JSON.stringify(newSettings));
 }

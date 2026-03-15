@@ -16,11 +16,15 @@ When enabled, card titles show the first frontmatter alias of a markdown file in
 
 When enabled, cards for non-markdown files (PDF, images, etc.) display the full filename including extension (e.g. `document.pdf` instead of `document`). When disabled, only the basename is shown.
 
-This setting is exposed in the Notes section of the plugin settings tab and defaults to on.
+**Obsidian document types** (notes `.md`, canvas `.canvas`, and bases `.base`) never show the file extension, regardless of this setting. They always display the basename.
 
 ## Technical implementation
 
 - Card titles are resolved by `getFileDisplayName()` in `src/logic/get-file-display-name.ts`.
 - The function checks `useAliases` and `showFileExtForNonMdFiles` from `plugin.settings`.
 - Non-markdown detection uses `file.extension`; files without extension are treated as markdown for backward compatibility.
-- Settings types: `PluginSettings_0_3_0` in `src/types/plugin-settings_0_3_0.ts`.
+- Settings types: `PluginSettings_0_4_0` in `src/types/plugin-settings_0_4_0.ts`.
+
+### File type visibility
+
+Controls which file types appear in the project browser view and the project pages menu. See [docs/file-type-visibility.md](file-type-visibility.md) for full details.

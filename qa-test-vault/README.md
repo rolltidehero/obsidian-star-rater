@@ -24,3 +24,12 @@ Edit `generate.mjs` to add folders, notes, or adjust plugin data. The script is 
 ## Pre-seeding
 
 `data.json` pre-seeds Project Browser settings to suppress onboarding notices. Add similar pre-seeds in `generate.mjs` for other plugins (e.g. `previousRelease` for Excalidraw) when needed.
+
+## File Types Test folder
+
+The **File Types Test** folder contains minimal valid fixtures for testing file type visibility:
+
+- **Obsidian-supported:** `.png`, `.pdf`, `.mp3`, `.wav`, `.gif`, `.svg`, `.canvas`, `.base`, `.json`, `.md`
+- **Other types (for "scan for new file types"):** `.yaml`, `.log`, `.toml`
+
+Project A also includes `.png`, `.pdf`, `.mp3`, `.wav`, and `.base` so you can test file type visibility within a project context.

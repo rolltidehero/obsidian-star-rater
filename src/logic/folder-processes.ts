@@ -4,6 +4,7 @@ import { getFileStateSettings, getFileStateName } from "./frontmatter-processes"
 import { getFileExcerpt } from "./file-processes";
 import { getGlobals } from "./stores";
 import { getFolderSettings, getFolderStateName } from "src/utils/file-manipulation";
+import { isExtensionVisible } from "./file-type-filter";
 
 ///////////
 ///////////
@@ -122,8 +123,7 @@ export const getSortedSectionsInFolder = (folder: TFolder): Section[] => {
             // }
 
         } else if(item instanceof TFile) {
-            // Don't show Project Browser settings files
-            if(item.extension.toLowerCase() === 'pbs') return;
+            if (!isExtensionVisible(item.extension)) return;
 
             const displayState = getFileStateName(item);
             if(displayState) {
@@ -199,7 +199,7 @@ export async function getSortedSectionsInFolderAsync(folder: TFolder): Promise<S
                 itemsBySection['folders'].push(item);
             }
         } else if (item instanceof TFile) {
-            if (item.extension.toLowerCase() === 'pbs') continue;
+            if (!isExtensionVisible(item.extension)) continue;
 
             const displayState = getFileStateName(item);
             if (displayState) {
