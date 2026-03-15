@@ -1,3 +1,46 @@
+// Legend and chip color coding (three sections: default, registered, unsupported)
+.ddc_pb_file-type-unsupported {
+    background-color: var(--interactive-normal);
+    color: var(--text-normal);
+}
+
+.ddc_pb_file-type-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em 1em;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-bottom: 1em;
+    width: 100%;
+
+    .ddc_pb_file-type-legend-item {
+        padding: 0.2em 0.5em;
+        border-radius: 0.4em;
+        font-weight: 500;
+    }
+
+    .ddc_pb_file-type-legend-item.ddc_pb_file-type-default {
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+    }
+
+    .ddc_pb_file-type-legend-item.ddc_pb_file-type-registered {
+        background-color: var(--text-muted);
+        color: var(--background-primary);
+    }
+
+    .ddc_pb_file-type-legend-item.ddc_pb_file-type-unsupported {
+        border: none;
+        color: var(--text-muted);
+    }
+
+    .ddc_pb_file-type-legend-sep {
+        color: var(--text-faint);
+        font-size: 0.9em;
+    }
+}
+
 .ddc_pb_file-type-section {
     background-color: rgba(255, 255, 255, 0.03);
     border-radius: 16px;
@@ -30,7 +73,7 @@
         row-gap: 0.9em;
 
         .ddc_pb_draggable {
-            padding: 8px 6px;
+            padding: 8px 14px 8px 6px;
             border-radius: 1em;
             background-color: rgba(255, 255, 255, 0.1);
             display: flex;
@@ -47,6 +90,24 @@
                         color: rgba(255, 255, 255, 1);
                     }
                 }
+
+                &.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.1em;
+
+                    .ddc_pb_hidden-item-ext {
+                        font-size: 0.85em;
+                        color: var(--text-muted);
+                    }
+
+                    .ddc_pb_hidden-item-plugin {
+                        font-size: 0.8em;
+                        color: var(--text-faint);
+                        font-style: italic;
+                    }
+                }
             }
 
             .ddc_pb_icon {
@@ -58,62 +119,40 @@
                 width: 1em;
                 height: 1em;
             }
+
+            &.ddc_pb_file-type-default {
+                background-color: color-mix(in srgb, var(--interactive-accent) 25%, transparent);
+                color: var(--text-on-accent);
+            }
+
+            &.ddc_pb_file-type-default.ddc_pb_file-type-default-full {
+                background-color: var(--interactive-accent);
+                color: var(--text-on-accent);
+            }
+
+            &.ddc_pb_file-type-default,
+            &.ddc_pb_file-type-default-full {
+                .ddc_pb_draggable-label.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text .ddc_pb_hidden-item-ext,
+                .ddc_pb_draggable-label.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text .ddc_pb_hidden-item-pretty {
+                    color: inherit;
+                }
+            }
+
+            &.ddc_pb_file-type-registered {
+                background-color: var(--text-muted);
+                color: var(--background-primary);
+
+                .ddc_pb_draggable-label.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text .ddc_pb_hidden-item-ext,
+                .ddc_pb_draggable-label.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text .ddc_pb_hidden-item-pretty,
+                .ddc_pb_draggable-label.ddc_pb_hidden-item-label .ddc_pb_hidden-item-text .ddc_pb_hidden-item-plugin {
+                    color: inherit;
+                }
+            }
+
+            &.ddc_pb_file-type-unsupported {
+                // Shared with legend – see .ddc_pb_file-type-unsupported
+            }
         }
     }
 
-    .ddc_pb_file-type-scan-row {
-        width: 100%;
-        margin-bottom: 0.5em;
-    }
-
-    .ddc_pb_scan-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5em;
-        padding: 0.4em 0.8em;
-        border-radius: 0.5em;
-        background-color: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: var(--text-normal);
-        cursor: pointer;
-        font-size: 0.9em;
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.12);
-        }
-    }
-}
-
-.ddc_pb_file-type-section + .ddc_pb_states-section.ddc_pb_dropzone-section {
-    background-color: rgba(255, 100, 100, 0.05);
-    border-radius: 16px;
-    height: 0;
-    padding: 0 1em;
-    overflow: hidden;
-    transition: all 0.2s ease-in-out;
-
-    &.ddc_pb_visible {
-        height: 7em;
-        padding: 1em;
-    }
-
-    h3 {
-        display: flex;
-        gap: 15px;
-        color: red;
-
-        .ddc_pb_delete-icon {
-            width: 1.5em;
-            height: 1.5em;
-            color: red;
-        }
-    }
-
-    position: relative;
-
-    .ddc_pb_dropzone-ctrl {
-        position: absolute;
-        inset: 0;
-        padding: 3.5em 1em;
-    }
 }

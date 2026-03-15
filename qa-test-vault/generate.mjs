@@ -357,6 +357,12 @@ Term definitions and references.
   );
   await write("File Types Test/sample.base", "views: []\n");
   await write(
+    "File Types Test/sample.pbs",
+    JSON.stringify({ _description: "Sample PBS for visibility test", isProject: false }, null, 2)
+  );
+  await write("File Types Test/sample.mjs", "#!/usr/bin/env node\nexport default {};\n");
+  await write("File Types Test/sample.txt", "Sample text file for file type visibility testing.\n");
+  await write(
     "File Types Test/plugin-config.json",
     JSON.stringify({ enabled: true, version: "1.0" })
   );
@@ -368,12 +374,22 @@ Term definitions and references.
   );
   await write("File Types Test/readme.md", "# File Types Test\n\nFolder for testing file type visibility.\n");
 
-  // Project A — add media files for project context testing
+  // Project A — add media files and config formats for project context testing
   await writeBinary("Project A/sample.png", FIXTURE_PNG_1X1);
   await writeBinary("Project A/sample.pdf", FIXTURE_PDF_MINIMAL);
   await writeBinary("Project A/sample.mp3", FIXTURE_MP3_SILENT);
   await writeBinary("Project A/sample.wav", FIXTURE_WAV_MINIMAL);
   await write("Project A/sample.base", "views: []\n");
+  await write(
+    "Project A/sample.pbs",
+    JSON.stringify({ _description: "Sample PBS for visibility test", isProject: false }, null, 2)
+  );
+  await write("Project A/sample.mjs", "export default {};\n");
+  await write("Project A/sample.txt", "Sample text file for file type visibility testing.\n");
+  await write("Project A/sample.json", JSON.stringify({ test: true }));
+  await write("Project A/sample.yaml", "key: value\n");
+  await write("Project A/sample.log", "[2024-01-01 12:00:00] Log entry\n");
+  await write("Project A/sample.toml", "[section]\nkey = \"value\"\n");
 
   console.log("Generated qa-test-vault at", VAULT_ROOT);
 }

@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { FileText, LayoutDashboard, Table } from 'lucide-react';
 import './note-card-base.scss';
 import { TFile } from "obsidian";
 import * as React from "react";
@@ -12,12 +11,35 @@ import { getFilePrioritySettings } from 'src/logic/frontmatter-processes';
 /////////
 /////////
 
-function getFileTypeIcon(extension: string): React.ComponentType<{ size?: number; className?: string }> | null {
+const FILE_TYPE_LABELS: Record<string, string> = {
+    canvas: 'CANVAS',
+    base: 'BASE',
+    pdf: 'PDF',
+    png: 'PNG',
+    jpg: 'JPEG',
+    jpeg: 'JPEG',
+    gif: 'GIF',
+    svg: 'SVG',
+    webp: 'WEBP',
+    avif: 'AVIF',
+    bmp: 'BMP',
+    flac: 'FLAC',
+    m4a: 'M4A',
+    mp3: 'MP3',
+    ogg: 'OGG',
+    wav: 'WAV',
+    webm: 'WEBM',
+    '3gp': '3GP',
+    mkv: 'MKV',
+    mov: 'MOV',
+    mp4: 'MP4',
+    ogv: 'OGV',
+};
+
+function getFileTypeLabel(extension: string): string | null {
     const ext = (extension ?? '').toLowerCase();
-    if (ext === 'md') return FileText;
-    if (ext === 'canvas') return LayoutDashboard;
-    if (ext === 'base') return Table;
-    return null;
+    if (ext === 'md') return null;
+    return FILE_TYPE_LABELS[ext] ?? ext.toUpperCase();
 }
 
 export interface NoteCardBaseProps {
@@ -36,7 +58,7 @@ export const NoteCardBase = (props: NoteCardBaseProps) => {
 
     const prioritySettings = getFilePrioritySettings(props.file);
     const showSettleTransition = props.file.path === cardBrowserContext.lastTouchedFilePath;
-    const FileTypeIcon = getFileTypeIcon(props.file.extension ?? '');
+    const fileTypeLabel = getFileTypeLabel(props.file.extension ?? '');
 
     React.useEffect( () => {
         if(!plugin) return;
@@ -71,9 +93,9 @@ export const NoteCardBase = (props: NoteCardBaseProps) => {
                 rotate: props.rotation ? props.rotation + 'deg' : undefined,
             }}
         >
-            {FileTypeIcon && (
-                <span className="ddc_pb_note-card-type-icon" aria-hidden>
-                    <FileTypeIcon size={14} className="ddc_pb_note-card-type-icon-svg" />
+            {fileTypeLabel && (
+                <span className="ddc_pb_note-card-type-label" aria-hidden>
+                    {fileTypeLabel}
                 </span>
             )}
             {props.children}

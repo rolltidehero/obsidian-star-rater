@@ -17,6 +17,7 @@ export function migrateOutdatedSettings(settings: {settingsVersion: string}): Pl
     if(semVer.lt(updatedSettings.settingsVersion, '0.1.0'))      updatedSettings = migrate_0_0_5_to_0_1_0(updatedSettings as unknown as PluginSettings_0_0_5);
     if(semVer.lt(updatedSettings.settingsVersion, '0.3.0'))      updatedSettings = migrate_0_1_0_to_0_3_0(updatedSettings as unknown as PluginSettings_0_1_0);
     if(semVer.lt(updatedSettings.settingsVersion, '0.4.0'))      updatedSettings = migrate_0_3_0_to_0_4_0(updatedSettings as unknown as PluginSettings_0_3_0);
+    if(updatedSettings.settingsVersion === '0.4.0')               updatedSettings = patch_0_4_0_fileTypes(updatedSettings as PluginSettings_0_4_0);
     
     if(JSON.stringify(updatedSettings) != JSON.stringify(settings)) {
         console.log('Project Browser: Migrated outdated settings');
@@ -188,4 +189,29 @@ export function migrate_0_3_0_to_0_4_0(oldSettings: PluginSettings_0_3_0): Plugi
         fileTypes: { ...DEFAULT_PLUGIN_SETTINGS_0_4_0.fileTypes },
     };
     return JSON.parse(JSON.stringify(newSettings));
+}
+
+/** Merges unsupported and hiddenAndUnsupportedOrder into hidden, then removes those fields. */
+function patch_0_4_0_fileTypes(settings: PluginSettings_0_4_0): PluginSettings_0_4_0 {
+    if (!settings.fileTypes) return settings;
+    const patched = JSON.parse(JSON.stringify(settings)) as PluginSettings_0_4_0 & {
+        fileTypes: FileTypeSettings_0_4_0 & { unsupported?: string[]; hiddenAndUnsupportedOrder?: string[] };
+    };
+    const oldHidden = patched.fileTypes.hidden ?? [];
+    const oldUnsupported = patched.fileTypes?.unsupported ?? [];
+    const order = patched.fileTypes?.hiddenAndUnsupportedOrder;
+
+    patched.fileTypes.hidden =
+        Array.isArray(order) && order.length > 0
+            ? order
+            : [...oldHidden, ...oldUnsupported.filter((e) => !oldHidden.map((x) => x.toLowerCase()).includes(e.toLowerCase()))];
+
+    const hasPbs = patched.fileTypes.hidden.some((e) => e.toLowerCase() === 'pbs');
+    if (!hasPbs) {
+        patched.fileTypes.hidden = [...patched.fileTypes.hidden, 'pbs'];
+    }
+
+    delete (patched.fileTypes as Record<string, unknown>).unsupported;
+    delete (patched.fileTypes as Record<string, unknown>).hiddenAndUnsupportedOrder;
+    return patched as PluginSettings_0_4_0;
 }

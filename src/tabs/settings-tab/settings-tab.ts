@@ -217,7 +217,7 @@ function insertFileTypeSettings(containerEl: HTMLElement, refresh: Function) {
 	sectionEl.createEl('p', {
 		text: 'Control which file types appear in the project browser view and project pages menu. Drag items between visible and hidden to change their visibility.',
 	});
-	insertFileTypeEditor(sectionEl);
+	insertFileTypeEditor(sectionEl, refresh);
 }
 
 function insertPrioritySettings(containerEl: HTMLElement, refresh: Function) {

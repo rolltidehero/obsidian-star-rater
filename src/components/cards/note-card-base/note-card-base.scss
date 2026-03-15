@@ -43,19 +43,17 @@
         animation-fill-mode: backwards;
     }
 
-    .ddc_pb_note-card-type-icon {
+    .ddc_pb_note-card-type-label {
         position: absolute;
         top: 0.25em;
         right: 0.25em;
-        opacity: 0.4;
         pointer-events: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .ddc_pb_note-card-type-icon-svg {
-            color: var(--text-muted, rgba(255, 255, 255, 0.6));
-        }
+        font-size: 0.65rem;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--text-faint, rgba(255, 255, 255, 0.4));
+        opacity: 0.75;
     }
 }
 
