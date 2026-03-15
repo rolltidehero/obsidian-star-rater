@@ -3,12 +3,16 @@ import { DEFAULT_PLUGIN_SETTINGS_0_3_0, PluginSettings_0_3_0 } from "./plugin-se
 ///////////
 ///////////
 
+export type FileTypeSurface = 'projectBrowser' | 'pageMenu';
+
+/** Per-surface file type visibility. Project Browser and Page Menu each have their own visible/hidden lists. */
 export interface FileTypeSettings_0_4_0 {
-    visible: string[];
-    hidden: string[];
+    projectBrowser: { visible: string[]; hidden: string[] };
+    pageMenu: { visible: string[]; hidden: string[] };
 }
 
-export const DEFAULT_FILE_TYPE_SETTINGS_0_4_0: FileTypeSettings_0_4_0 = {
+/** Project Browser defaults: full list of Obsidian-supported types visible. */
+const DEFAULT_PROJECT_BROWSER_FILE_TYPES = {
     visible: [
         'md',
         'canvas',
@@ -26,6 +30,8 @@ export const DEFAULT_FILE_TYPE_SETTINGS_0_4_0: FileTypeSettings_0_4_0 = {
         'm4a',
         'mp3',
         'ogg',
+        'oga',
+        'opus',
         'wav',
         'webm',
         '3gp',
@@ -35,6 +41,41 @@ export const DEFAULT_FILE_TYPE_SETTINGS_0_4_0: FileTypeSettings_0_4_0 = {
         'ogv',
     ],
     hidden: ['pbs'],
+};
+
+/** Page Menu defaults: only Note, Canvas, Base visible; everything else hidden. */
+const DEFAULT_PAGE_MENU_FILE_TYPES = {
+    visible: ['md', 'canvas', 'base'],
+    hidden: [
+        'pbs',
+        'pdf',
+        'avif',
+        'bmp',
+        'gif',
+        'jpeg',
+        'jpg',
+        'png',
+        'svg',
+        'webp',
+        'flac',
+        'm4a',
+        'mp3',
+        'ogg',
+        'oga',
+        'opus',
+        'wav',
+        'webm',
+        '3gp',
+        'mkv',
+        'mov',
+        'mp4',
+        'ogv',
+    ],
+};
+
+export const DEFAULT_FILE_TYPE_SETTINGS_0_4_0: FileTypeSettings_0_4_0 = {
+    projectBrowser: { ...DEFAULT_PROJECT_BROWSER_FILE_TYPES },
+    pageMenu: { ...DEFAULT_PAGE_MENU_FILE_TYPES },
 };
 
 ///////////

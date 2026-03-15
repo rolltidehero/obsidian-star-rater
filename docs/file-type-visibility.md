@@ -8,11 +8,11 @@ By default, the project browser shows all file types that Obsidian natively supp
 
 ## Conceptual understanding
 
-- **Visible file types** — Extensions in this list are shown in the project browser view and the project pages FAB menu.
-- **Hidden file types** — Extensions in this list are suppressed. They do not appear in the project browser view or the project pages menu.
+- **Visible file types** — Extensions in this list are shown in the surface (Project Browser or Page Menu). Each surface has its own visible list.
+- **Hidden file types** — Extensions in this list are suppressed for that surface. Each surface has its own hidden list.
 - **Unsupported file types** — A display category for extensions in hidden that are not in Obsidian's view registry (vault-scanned types). They are stored in hidden and derived at render time.
 
-The same filter applies consistently across both surfaces: only files whose extension is in the visible list are shown.
+Project Browser and Page Menu each have separate visible and hidden lists, so you can control what appears in the card view differently from what appears in the pages menu.
 
 ## Three sections and color coding
 
@@ -31,63 +31,60 @@ A legend above the file type sections shows sample chips in each color. The **Hi
 ```mermaid
 flowchart TD
     subgraph OnSettingsOpen [On settings tab open]
-        Mount[FileTypeEditor mounts]
-        GetReg[getRegisteredExtensionsFromApp]
-        Diff[Extensions not in visible/hidden]
-        AddToVisible[Add to visible]
-        Mount --> GetReg --> Diff --> AddToVisible
+        Mount[FileTypeSettingsSection mounts]
+        Discovery[runFileTypeDiscovery]
+        AddToBoth[Add new types to both surfaces]
+        Mount --> Discovery --> AddToBoth
     end
 
     subgraph Settings [Settings tab]
-        Visible[Visible file types]
-        Hidden[Hidden file types]
+        PBBrowser[Project Browser visible/hidden]
+        PMMenu[Page Menu visible/hidden]
     end
 
-    subgraph Filter [Filter]
-        IsVisible[isExtensionVisible]
+    subgraph Filter [Filter by surface]
+        IsVisiblePB["isExtensionVisible(ext, projectBrowser)"]
+        IsVisiblePM["isExtensionVisible(ext, pageMenu)"]
     end
 
-    subgraph Scan [Scan for new file types]
+    subgraph DiscoveryLogic [Discovery adds to both]
         VaultScan[Vault getFiles]
-        FilterScan[Exclude native and registered]
-        AddToHidden[Add to hidden]
-        VaultScan --> FilterScan --> AddToHidden
+        RegScan[Registry scan]
+        AddPlugin[Plugin types to visible]
+        AddVault[Vault types to hidden]
+        VaultScan --> AddVault
+        RegScan --> AddPlugin
     end
 
     Settings --> Filter
-    Filter --> CardBrowser[Card browser view]
-    Filter --> ProjectPagesFAB[Project Pages FAB]
+    IsVisiblePB --> CardBrowser[Card browser view]
+    IsVisiblePM --> ProjectPagesFAB[Project Pages FAB]
 ```
 
 ## Using file type visibility
 
 ### Default visible file types
 
-By default, visible file types include Obsidian's native formats:
+Default visibility differs by surface:
 
-- **Note** (`.md`)
-- **Canvas** (`.canvas`)
-- **Base** (`.base`)
-- **PDF** (`.pdf`)
-- Image formats (`.png`, `.jpg`, `.gif`, `.svg`, etc.)
-- Audio formats (`.mp3`, `.ogg`, `.wav`, etc.)
-- Video formats (`.mp4`, `.mov`, `.webm`, etc.)
+- **Project Browser** — All Obsidian native formats visible: Note (`.md`), Canvas (`.canvas`), Base (`.base`), PDF, images, audio, video, etc.
+- **Page Menu** — Only Note (`.md`), Canvas (`.canvas`), and Base (`.base`) are visible by default. PDF, images, audio, video, and all other types start in Hidden. Users can move types to Visible as needed.
 
 ### Auto-detect on settings open
 
-When you open the File Type settings tab, the editor automatically discovers Obsidian-registered extensions (from `viewRegistry.typeByExtension`) and adds any that are not already in Visible or Hidden to the **Visible** list. It also scans the vault and adds any new extensions not in Visible or Hidden to the **Hidden** list. This ensures newly enabled plugins' file types appear without manual action.
+When you open the File Type settings tab, the editor automatically discovers Obsidian-registered extensions (from `viewRegistry.typeByExtension`) and adds any that are not already known to the **Visible** list in both Project Browser and Page Menu. It also scans the vault and adds any new extensions not already known to the **Hidden** list in both surfaces. This ensures newly enabled plugins' file types appear without manual action.
 
-### Drag-and-drop
+### Per-surface settings
 
-You can drag file types between **Visible** and **Hidden** to change what appears in the browser and pages menu. The Hidden section displays all hidden types, with distinct colors for native/plugin vs vault-scanned (unsupported).
+The settings tab shows two sections: **Project Browser** and **Page Menu**. Each has its own Visible and Hidden lists. Drag file types between Visible and Hidden within a section to control what appears in that surface. The Hidden section displays all hidden types for that surface, with distinct colors for native/plugin vs vault-scanned (unsupported).
 
 ### Scan for new file types
 
-On mount, the editor scans the vault for unique extensions and adds any not already in Visible or Hidden to the **Hidden** list. Newly discovered types appear in the Hidden section with the unsupported (secondary) color. Drag them to Visible if you want to show them in the browser.
+On mount, the editor scans the vault for unique extensions and adds any not already known to the **Hidden** list in both Project Browser and Page Menu. Newly discovered types appear in the Hidden section with the unsupported (secondary) color. Drag them to Visible in either surface if you want to show them there.
 
 ### Add plugin-registered types
 
-On mount, the editor discovers Obsidian-registered extensions (from `viewRegistry.typeByExtension`) and adds any not already in Visible or Hidden to the **Visible** list. This ensures newly enabled plugins' file types appear without manual action.
+On mount, the editor discovers Obsidian-registered extensions (from `viewRegistry.typeByExtension`) and adds any not already known to the **Visible** list in both Project Browser and Page Menu. This ensures newly enabled plugins' file types appear without manual action.
 
 ### Display names
 
@@ -99,19 +96,19 @@ All file type chips show the display name (or `.ext`) on the first line. For plu
 
 ## Technical implementation
 
-- **Settings**: `plugin.settings.fileTypes.visible`, `plugin.settings.fileTypes.hidden` (string arrays of extensions).
-- **Filter**: `isExtensionVisible(extension)` in `src/logic/file-type-filter.ts` — returns `true` only when the extension is in the visible list.
-- **Project browser**: `getSortedSectionsInFolder` and `getSortedSectionsInFolderAsync` in `src/logic/folder-processes.ts` skip files whose extension fails the filter.
-- **Pages menu**: `ProjectPagesFAB` in `src/components/project-pages-fab/` filters its page list with the same function.
-- **File type editor**: `FileTypeEditor` in `src/components/file-type-editor/` renders the visible and hidden sections with ReactSortable for drag-and-drop, plus a legend and color-coded chips.
+- **Settings**: `plugin.settings.fileTypes.projectBrowser` and `plugin.settings.fileTypes.pageMenu`, each with `visible` and `hidden` (string arrays of extensions).
+- **Filter**: `isExtensionVisible(extension, surface)` in `src/logic/file-type-filter.ts` — returns `true` only when the extension is in that surface's visible list.
+- **Project browser**: `getSortedSectionsInFolder` and `getSortedSectionsInFolderAsync` in `src/logic/folder-processes.ts` use `isExtensionVisible(ext, 'projectBrowser')`.
+- **Pages menu**: `ProjectPagesFAB` in `src/components/project-pages-fab/` uses `isExtensionVisible(ext, 'pageMenu')`.
+- **File type editor**: `FileTypeSettingsSection` runs discovery on mount; `FileTypeEditor` (one per surface) renders visible and hidden sections with ReactSortable for drag-and-drop, plus a shared legend and color-coded chips. Each surface uses a separate ReactSortable `group` so items cannot be dragged between Project Browser and Page Menu.
 
 ## Technical gotchas
 
 - Extensions are compared case-insensitively.
 - `.pbs` (project settings) is in the default hidden list and never appears in the browser or pages menu.
 - The scan excludes empty extensions and `.pbs`.
-- Auto-detect runs when the settings tab mounts; plugins that register later may require reopening settings.
+- Auto-detect runs when the settings tab mounts and adds new types to **both** surfaces; plugins that register later may require reopening settings.
 - `getRegisteredExtensionsFromApp` reads from Obsidian's internal view registry (`viewRegistry.typeByExtension`), which is undocumented. If the registry is inaccessible, it falls back to a minimal set (`md`, `canvas`, `base`). If Obsidian changes this structure in a future version, the registry-based logic may need adjustment.
 - Native vs plugin (default vs registered) is derived at runtime: view metadata is checked for `pluginId`; if present, the extension is plugin-registered.
 - Plugin attribution (e.g. "via Plugin Name") on chips probes `viewRegistry.views` or `byType`; this is best-effort and may not work in all Obsidian versions.
-- ReactSortable uses a shared `group` so items can be dragged between Visible and Hidden.
+- ReactSortable uses `group={fileTypes-${surface}}` so items can be dragged between Visible and Hidden within each surface, but not across surfaces.

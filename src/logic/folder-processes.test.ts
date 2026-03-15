@@ -36,8 +36,14 @@ describe("folder-processes", () => {
                 folders: { defaultView: "Small" as const },
                 stateless: { name: "", defaultView: "List" as const },
                 fileTypes: {
-                  visible: ["md", "canvas", "pdf"],
-                  hidden: ["pbs"],
+                  projectBrowser: {
+                    visible: ["md", "canvas", "pdf"],
+                    hidden: ["pbs"],
+                  },
+                  pageMenu: {
+                    visible: ["md", "canvas", "pdf"],
+                    hidden: ["pbs"],
+                  },
                 },
               },
             },

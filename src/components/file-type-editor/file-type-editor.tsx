@@ -5,6 +5,7 @@ import { GripVertical } from 'lucide-react';
 import classNames from 'classnames';
 import type { App } from 'obsidian';
 import { getGlobals } from 'src/logic/stores';
+import type { FileTypeSurface } from 'src/types/plugin-settings_0_4_0';
 import './file-type-editor.scss';
 
 ///////////
@@ -111,13 +112,56 @@ function getPluginNameForExtension(app: App, extension: string): string | null {
     }
 }
 
+/** Discovery helper: adds new types to both surfaces. Returns true if any changes were made. */
+function runFileTypeDiscovery(plugin: { app: App; settings: { fileTypes: { projectBrowser: { visible: string[]; hidden: string[] }; pageMenu: { visible: string[]; hidden: string[] } } }; saveSettings: () => Promise<void> }): boolean {
+    const fileTypes = plugin.settings.fileTypes;
+    const allKnown = new Set([
+        ...(fileTypes.projectBrowser.visible ?? []).map((e) => e.toLowerCase()),
+        ...(fileTypes.projectBrowser.hidden ?? []).map((e) => e.toLowerCase()),
+        ...(fileTypes.pageMenu.visible ?? []).map((e) => e.toLowerCase()),
+        ...(fileTypes.pageMenu.hidden ?? []).map((e) => e.toLowerCase()),
+    ]);
+    const registered = getRegisteredExtensionsFromApp(plugin.app);
+    let addedPlugin = false;
+    for (const ext of registered) {
+        const norm = ext.toLowerCase();
+        if (!allKnown.has(norm)) {
+            allKnown.add(norm);
+            fileTypes.projectBrowser.visible = [...(fileTypes.projectBrowser.visible ?? []), norm];
+            fileTypes.pageMenu.hidden = [...(fileTypes.pageMenu.hidden ?? []), norm];
+            addedPlugin = true;
+        }
+    }
+    const vault = plugin.app.vault;
+    const files = vault.getFiles();
+    const vaultExtensions = new Set<string>();
+    for (const file of files) {
+        const ext = (file.extension ?? '').toLowerCase();
+        if (ext && ext !== 'pbs') vaultExtensions.add(ext);
+    }
+    let addedVault = false;
+    for (const ext of vaultExtensions) {
+        if (!allKnown.has(ext)) {
+            allKnown.add(ext);
+            fileTypes.projectBrowser.hidden = [...(fileTypes.projectBrowser.hidden ?? []), ext];
+            fileTypes.pageMenu.hidden = [...(fileTypes.pageMenu.hidden ?? []), ext];
+            addedVault = true;
+        }
+    }
+    if (addedPlugin || addedVault) {
+        plugin.saveSettings();
+        return true;
+    }
+    return false;
+}
+
 ///////////
 ///////////
 
 export function insertFileTypeEditor(containerEl: HTMLElement, onScansComplete?: () => void) {
     const sectionEl = containerEl.createDiv('ddc_pb_settings-sub-section');
     const contentEl = sectionEl.createDiv();
-    createRoot(contentEl).render(<FileTypeEditor onScansComplete={onScansComplete} />);
+    createRoot(contentEl).render(<FileTypeSettingsSection onScansComplete={onScansComplete} />);
 }
 
 interface FileTypeItem extends ItemInterface {
@@ -125,18 +169,54 @@ interface FileTypeItem extends ItemInterface {
     extension: string;
 }
 
-interface FileTypeEditorProps {
+interface FileTypeSettingsSectionProps {
     onScansComplete?: () => void;
+}
+
+function FileTypeSettingsSection(props: FileTypeSettingsSectionProps) {
+    const { plugin } = getGlobals();
+    const { onScansComplete } = props;
+
+    React.useEffect(() => {
+        const runOnMount = () => {
+            const changed = runFileTypeDiscovery(plugin);
+            if (changed) {
+                onScansComplete?.();
+            }
+        };
+        setTimeout(runOnMount, 0);
+    }, [plugin, onScansComplete]);
+
+    return (
+        <div className="ddc_pb_section-header">
+            <div className="ddc_pb_file-type-legend">
+                <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-default">Native</span>
+                <span className="ddc_pb_file-type-legend-sep">Obsidian built-in</span>
+                <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-registered">Plugin</span>
+                <span className="ddc_pb_file-type-legend-sep">Plugin-registered</span>
+                <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-unsupported">Unsupported</span>
+                <span className="ddc_pb_file-type-legend-sep">From vault scan</span>
+            </div>
+            <FileTypeEditor surface="projectBrowser" />
+            <FileTypeEditor surface="pageMenu" />
+        </div>
+    );
+}
+
+interface FileTypeEditorProps {
+    surface: FileTypeSurface;
 }
 
 export const FileTypeEditor = (props: FileTypeEditorProps) => {
     const { plugin } = getGlobals();
-    const { onScansComplete } = props;
+    const { surface } = props;
+    const surfaceSettings = plugin.settings.fileTypes[surface];
+
     const [visibleFileTypes, setVisibleFileTypes] = React.useState<FileTypeItem[]>(() =>
-        (plugin.settings.fileTypes?.visible ?? []).map((ext) => ({ id: ext, extension: ext }))
+        (surfaceSettings?.visible ?? []).map((ext) => ({ id: ext, extension: ext }))
     );
     const [hiddenFileTypes, setHiddenFileTypes] = React.useState<FileTypeItem[]>(() =>
-        (plugin.settings.fileTypes?.hidden ?? []).map((ext) => ({ id: ext, extension: ext }))
+        (surfaceSettings?.hidden ?? []).map((ext) => ({ id: ext, extension: ext }))
     );
 
     const registeredExtensions = React.useMemo(
@@ -144,125 +224,48 @@ export const FileTypeEditor = (props: FileTypeEditorProps) => {
         [plugin.app]
     );
     const unsupportedSet = React.useMemo(() => {
-        const hidden = plugin.settings.fileTypes?.hidden ?? [];
+        const hidden = surfaceSettings?.hidden ?? [];
         return new Set(
             hidden
                 .map((e) => e.toLowerCase())
                 .filter((ext) => !registeredExtensions.has(ext))
         );
-    }, [plugin.settings.fileTypes?.hidden, registeredExtensions]);
-
-    const runAddPluginRegisteredTypes = React.useCallback((): boolean => {
-        const registered = getRegisteredExtensionsFromApp(plugin.app);
-        const allKnown = new Set([
-            ...registered,
-            ...(plugin.settings.fileTypes?.visible ?? []).map((e) => e.toLowerCase()),
-            ...(plugin.settings.fileTypes?.hidden ?? []).map((e) => e.toLowerCase()),
-        ]);
-        const toAdd: string[] = [];
-        for (const ext of registered) {
-            const norm = ext.toLowerCase();
-            if (!allKnown.has(norm)) {
-                toAdd.push(norm);
-                allKnown.add(norm);
-            }
-        }
-        if (toAdd.length > 0) {
-            plugin.settings.fileTypes.visible = [...(plugin.settings.fileTypes?.visible ?? []), ...toAdd];
-            plugin.saveSettings();
-            setVisibleFileTypes((prev) => [...prev, ...toAdd.map((ext) => ({ id: ext, extension: ext }))]);
-            return true;
-        }
-        return false;
-    }, [plugin]);
-
-    const runScanForNewFileTypes = React.useCallback(() => {
-        const vault = plugin.app.vault;
-        const files = vault.getFiles();
-        const vaultExtensions = new Set<string>();
-
-        for (const file of files) {
-            const ext = (file.extension ?? '').toLowerCase();
-            if (ext && ext !== 'pbs') {
-                vaultExtensions.add(ext);
-            }
-        }
-
-        const registered = getRegisteredExtensionsFromApp(plugin.app);
-        const allKnown = new Set([
-            ...registered,
-            ...(plugin.settings.fileTypes?.visible ?? []).map((e) => e.toLowerCase()),
-            ...(plugin.settings.fileTypes?.hidden ?? []).map((e) => e.toLowerCase()),
-        ]);
-
-        const newExtensions: string[] = [];
-        for (const ext of vaultExtensions) {
-            if (!allKnown.has(ext)) {
-                newExtensions.push(ext);
-                allKnown.add(ext);
-            }
-        }
-
-        if (newExtensions.length > 0) {
-            const updatedHidden = [...(plugin.settings.fileTypes?.hidden ?? []), ...newExtensions];
-            plugin.settings.fileTypes.hidden = updatedHidden;
-            plugin.saveSettings();
-            setHiddenFileTypes(updatedHidden.map((ext) => ({ id: ext, extension: ext })));
-            return true;
-        }
-        return false;
-    }, [plugin]);
-
-    React.useEffect(() => {
-        const runOnMount = () => {
-            const addedPluginTypes = runAddPluginRegisteredTypes();
-            const addedScanTypes = runScanForNewFileTypes();
-            if (addedPluginTypes || addedScanTypes) {
-                onScansComplete?.();
-            }
-        };
-        setTimeout(runOnMount, 0);
-    }, [runAddPluginRegisteredTypes, runScanForNewFileTypes, onScansComplete]);
+    }, [surfaceSettings?.hidden, registeredExtensions]);
 
     const persistVisible = React.useCallback(
         async (items: FileTypeItem[]) => {
-            plugin.settings.fileTypes.visible = items.map((item) => item.extension);
+            plugin.settings.fileTypes[surface].visible = items.map((item) => item.extension);
             await plugin.saveSettings();
             setVisibleFileTypes(items);
         },
-        [plugin]
+        [plugin, surface]
     );
 
     const persistHidden = React.useCallback(
         async (items: FileTypeItem[]) => {
-            plugin.settings.fileTypes.hidden = items.map((item) => item.extension);
+            plugin.settings.fileTypes[surface].hidden = items.map((item) => item.extension);
             await plugin.saveSettings();
             setHiddenFileTypes(items);
         },
-        [plugin]
+        [plugin, surface]
     );
+
+    const surfaceLabel = surface === 'projectBrowser' ? 'Project Browser' : 'Page Menu';
 
     return (
         <>
-            <div className="ddc_pb_section-header">
-                <div className="ddc_pb_file-type-legend">
-                    <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-default">Native</span>
-                    <span className="ddc_pb_file-type-legend-sep">Obsidian built-in</span>
-                    <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-registered">Plugin</span>
-                    <span className="ddc_pb_file-type-legend-sep">Plugin-registered</span>
-                    <span className="ddc_pb_file-type-legend-item ddc_pb_file-type-unsupported">Unsupported</span>
-                    <span className="ddc_pb_file-type-legend-sep">From vault scan</span>
-                </div>
-                <div className="ddc_pb_file-type-section">
-                    <h3>Visible file types</h3>
-                    <p className="ddc_pb_file-type-description">
-                        Files with these types appear in the project browser view and pages menu.
-                    </p>
-                    <ReactSortable
-                        list={visibleFileTypes}
-                        setList={persistVisible}
-                        group="fileTypes"
-                        animation={200}
+            <div className="ddc_pb_file-type-section">
+                <h3>{surfaceLabel} — Visible file types</h3>
+                <p className="ddc_pb_file-type-description">
+                    {surface === 'projectBrowser'
+                        ? 'Files with these types appear in the project browser card view.'
+                        : 'Files with these types appear in the project pages menu.'}
+                </p>
+                <ReactSortable
+                    list={visibleFileTypes}
+                    setList={persistVisible}
+                    group={`fileTypes-${surface}`}
+                    animation={200}
                         className={classNames([
                             'ddc_pb_states-ctrl',
                             'ddc_pb_visible-states-ctrl',
@@ -297,15 +300,16 @@ export const FileTypeEditor = (props: FileTypeEditorProps) => {
                 </div>
 
                 <div className="ddc_pb_file-type-section">
-                    <h3>Hidden file types</h3>
+                    <h3>{surfaceLabel} — Hidden file types</h3>
                     <p className="ddc_pb_file-type-description">
-                        Hidden file types do not appear in the project browser view or the project
-                        pages menu.
+                        {surface === 'projectBrowser'
+                            ? 'Hidden file types do not appear in the project browser view.'
+                            : 'Hidden file types do not appear in the project pages menu.'}
                     </p>
                     <ReactSortable
                         list={hiddenFileTypes}
                         setList={persistHidden}
-                        group="fileTypes"
+                        group={`fileTypes-${surface}`}
                         animation={200}
                         className={classNames([
                             'ddc_pb_states-ctrl',
@@ -339,7 +343,6 @@ export const FileTypeEditor = (props: FileTypeEditorProps) => {
                         })}
                     </ReactSortable>
                 </div>
-            </div>
         </>
     );
 };

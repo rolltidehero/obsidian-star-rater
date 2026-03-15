@@ -123,7 +123,7 @@ export const getSortedSectionsInFolder = (folder: TFolder): Section[] => {
             // }
 
         } else if(item instanceof TFile) {
-            if (!isExtensionVisible(item.extension)) return;
+            if (!isExtensionVisible(item.extension, 'projectBrowser')) return;
 
             const displayState = getFileStateName(item);
             if(displayState) {
@@ -199,7 +199,7 @@ export async function getSortedSectionsInFolderAsync(folder: TFolder): Promise<S
                 itemsBySection['folders'].push(item);
             }
         } else if (item instanceof TFile) {
-            if (!isExtensionVisible(item.extension)) continue;
+            if (!isExtensionVisible(item.extension, 'projectBrowser')) continue;
 
             const displayState = getFileStateName(item);
             if (displayState) {

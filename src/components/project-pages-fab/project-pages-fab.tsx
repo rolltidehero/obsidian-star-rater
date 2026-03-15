@@ -5,7 +5,6 @@ import { FilePlus, FileStack, Folder, Plus } from 'lucide-react';
 import classNames from 'classnames';
 import { getItemsInFolder } from 'src/logic/folder-processes';
 import { isExtensionVisible } from 'src/logic/file-type-filter';
-import { isExtensionVisible } from 'src/logic/file-type-filter';
 
 //////////
 //////////
@@ -37,7 +36,7 @@ export const ProjectPagesFAB = (props: ProjectPagesFABProps) => {
 
         const pageFiles = items
             .filter((item): item is TFile => item instanceof TFile)
-            .filter((file) => isExtensionVisible(file.extension));
+            .filter((file) => isExtensionVisible(file.extension, 'pageMenu'));
 
         return [...pageFiles].sort((a, b) => a.name.localeCompare(b.name));
     }, [props.projectFolder, refreshTrigger]);

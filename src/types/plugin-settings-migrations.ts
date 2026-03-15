@@ -4,7 +4,7 @@ import { DEFAULT_PLUGIN_SETTINGS_0_1_0, DEFAULT_STATE_SETTINGS_0_1_0, PluginSett
 import * as semVer from 'semver';
 import { PluginSettings } from "./types-map";
 import { DEFAULT_PLUGIN_SETTINGS_0_3_0, DEFAULT_STATE_SETTINGS_0_3_0, PluginSettings_0_3_0 } from "./plugin-settings_0_3_0";
-import { DEFAULT_PLUGIN_SETTINGS_0_4_0, PluginSettings_0_4_0 } from "./plugin-settings_0_4_0";
+import { DEFAULT_FILE_TYPE_SETTINGS_0_4_0, DEFAULT_PLUGIN_SETTINGS_0_4_0, FileTypeSettings_0_4_0, PluginSettings_0_4_0 } from "./plugin-settings_0_4_0";
 import { findItemByProperty } from "./migration-helpers";
 
 ///////////
@@ -191,27 +191,42 @@ export function migrate_0_3_0_to_0_4_0(oldSettings: PluginSettings_0_3_0): Plugi
     return JSON.parse(JSON.stringify(newSettings));
 }
 
-/** Merges unsupported and hiddenAndUnsupportedOrder into hidden, then removes those fields. */
+/** Transforms legacy fileTypes (visible/hidden) to per-surface (projectBrowser/pageMenu). */
 function patch_0_4_0_fileTypes(settings: PluginSettings_0_4_0): PluginSettings_0_4_0 {
     if (!settings.fileTypes) return settings;
     const patched = JSON.parse(JSON.stringify(settings)) as PluginSettings_0_4_0 & {
-        fileTypes: FileTypeSettings_0_4_0 & { unsupported?: string[]; hiddenAndUnsupportedOrder?: string[] };
+        fileTypes: FileTypeSettings_0_4_0 | (
+            { visible: string[]; hidden: string[] } &
+            { unsupported?: string[]; hiddenAndUnsupportedOrder?: string[] }
+        );
     };
-    const oldHidden = patched.fileTypes.hidden ?? [];
-    const oldUnsupported = patched.fileTypes?.unsupported ?? [];
-    const order = patched.fileTypes?.hiddenAndUnsupportedOrder;
+    const fileTypes = patched.fileTypes as Record<string, unknown>;
 
-    patched.fileTypes.hidden =
+    if (fileTypes.projectBrowser) {
+        return patched as PluginSettings_0_4_0;
+    }
+
+    const oldVisible = (fileTypes.visible as string[]) ?? [];
+    let oldHidden = (fileTypes.hidden as string[]) ?? [];
+    const oldUnsupported = (fileTypes.unsupported as string[] | undefined) ?? [];
+    const order = fileTypes.hiddenAndUnsupportedOrder as string[] | undefined;
+
+    oldHidden =
         Array.isArray(order) && order.length > 0
             ? order
             : [...oldHidden, ...oldUnsupported.filter((e) => !oldHidden.map((x) => x.toLowerCase()).includes(e.toLowerCase()))];
 
-    const hasPbs = patched.fileTypes.hidden.some((e) => e.toLowerCase() === 'pbs');
+    const hasPbs = oldHidden.some((e) => e.toLowerCase() === 'pbs');
     if (!hasPbs) {
-        patched.fileTypes.hidden = [...patched.fileTypes.hidden, 'pbs'];
+        oldHidden = [...oldHidden, 'pbs'];
     }
 
-    delete (patched.fileTypes as Record<string, unknown>).unsupported;
-    delete (patched.fileTypes as Record<string, unknown>).hiddenAndUnsupportedOrder;
+    patched.fileTypes = {
+        projectBrowser: { visible: [...oldVisible], hidden: [...oldHidden] },
+        pageMenu: {
+            visible: [...DEFAULT_FILE_TYPE_SETTINGS_0_4_0.pageMenu.visible],
+            hidden: [...DEFAULT_FILE_TYPE_SETTINGS_0_4_0.pageMenu.hidden],
+        },
+    };
     return patched as PluginSettings_0_4_0;
 }

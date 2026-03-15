@@ -215,7 +215,7 @@ function insertFileTypeSettings(containerEl: HTMLElement, refresh: Function) {
 	const sectionEl = containerEl.createDiv('ddc_pb_settings-section ddc_pb_controls-section');
 	sectionEl.createEl('h2', { text: 'File type visibility' });
 	sectionEl.createEl('p', {
-		text: 'Control which file types appear in the project browser view and project pages menu. Drag items between visible and hidden to change their visibility.',
+		text: 'Control which file types appear in the Project Browser view and the Page Menu. Each surface has its own visible and hidden lists. Drag items between visible and hidden to change visibility.',
 	});
 	insertFileTypeEditor(sectionEl, refresh);
 }
