@@ -16,6 +16,7 @@
     }
 
     .ddc_pb_project-pages-fab__page-button {
+        position: relative;
         cursor: pointer;
         --size: min(40px, 8vw);
         min-height: var(--size);
@@ -27,6 +28,25 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 0.9em;
+
+        .ddc_pb_file-type-tag {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding: 1px 3px;
+            border-radius: 3px 0 8px 0;
+            pointer-events: none;
+            font-size: 0.4rem;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background-color: var(--background-secondary);
+        }
+
+        .ddc_pb_file-ext-faint {
+            color: var(--text-faint, rgba(255, 255, 255, 0.4));
+        }
 
         &--active {
             cursor: default;

@@ -1,7 +1,7 @@
 import './small-note-card.scss';
 import { TFile } from "obsidian";
 import * as React from "react";
-import { getFileDisplayName } from 'src/logic/get-file-display-name';
+import { getFileDisplayNameParts } from 'src/logic/get-file-display-name';
 import { NoteCardBase } from '../note-card-base/note-card-base';
 
 /////////
@@ -12,7 +12,7 @@ interface SmallNoteCardProps {
 }
 
 export const SmallNoteCard = (props: SmallNoteCardProps) => {
-    const name = getFileDisplayName(props.file);
+    const { basename, extension } = getFileDisplayNameParts(props.file);
     const [articleRotation] = React.useState(Math.random() * 4 - 2);
 
     return <>
@@ -22,7 +22,8 @@ export const SmallNoteCard = (props: SmallNoteCardProps) => {
             rotation={articleRotation}
         >
             <h3>
-                {name}
+                {basename}
+                {extension && <span className="ddc_pb_file-ext-faint">{extension}</span>}
             </h3>
         </NoteCardBase>
     </>

@@ -1,0 +1,35 @@
+import { describe, expect, test } from "@jest/globals";
+import { getFileTypeLabel } from "./get-file-type-label";
+
+describe("getFileTypeLabel", () => {
+  test("returns null for markdown", () => {
+    expect(getFileTypeLabel("md")).toBeNull();
+  });
+
+  test("returns null for pdf", () => {
+    expect(getFileTypeLabel("pdf")).toBeNull();
+  });
+
+  test("returns null for svg, png, gif", () => {
+    expect(getFileTypeLabel("svg")).toBeNull();
+    expect(getFileTypeLabel("png")).toBeNull();
+    expect(getFileTypeLabel("gif")).toBeNull();
+  });
+
+  test("returns null for mp3, wav", () => {
+    expect(getFileTypeLabel("mp3")).toBeNull();
+    expect(getFileTypeLabel("wav")).toBeNull();
+  });
+
+  test("returns CANVAS for canvas", () => {
+    expect(getFileTypeLabel("canvas")).toBe("CANVAS");
+  });
+
+  test("returns BASE for base", () => {
+    expect(getFileTypeLabel("base")).toBe("BASE");
+  });
+
+  test("handles empty or null extension", () => {
+    expect(getFileTypeLabel("")).toBeNull();
+  });
+});

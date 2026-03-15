@@ -5,6 +5,8 @@ import { FilePlus, FileStack, Folder, Plus } from 'lucide-react';
 import classNames from 'classnames';
 import { getItemsInFolder } from 'src/logic/folder-processes';
 import { isExtensionVisible } from 'src/logic/file-type-filter';
+import { getFileDisplayNameParts } from 'src/logic/get-file-display-name';
+import { getFileTypeLabel } from 'src/logic/get-file-type-label';
 
 //////////
 //////////
@@ -121,6 +123,8 @@ export const ProjectPagesFAB = (props: ProjectPagesFABProps) => {
                 <div className="ddc_pb_project-pages-fab__page-buttons">
                     {props.parentIsProject && pagesInProject.map((file) => {
                         const isCurrentPage = file.path === props.currentFile.path;
+                        const fileTypeLabel = getFileTypeLabel(file.extension ?? '');
+                        const { basename, extension } = getFileDisplayNameParts(file);
                         return (
                             <button
                                 key={file.path}
@@ -131,7 +135,13 @@ export const ProjectPagesFAB = (props: ProjectPagesFABProps) => {
                                 onClick={isCurrentPage ? undefined : () => handlePageClick(file)}
                                 disabled={isCurrentPage}
                             >
-                                {file.basename}
+                                {fileTypeLabel && (
+                                    <span className="ddc_pb_file-type-tag" aria-hidden>
+                                        {fileTypeLabel}
+                                    </span>
+                                )}
+                                {basename}
+                                {extension && <span className="ddc_pb_file-ext-faint">{extension}</span>}
                             </button>
                         );
                     })}

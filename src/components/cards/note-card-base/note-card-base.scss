@@ -55,6 +55,10 @@
         color: var(--text-faint, rgba(255, 255, 255, 0.4));
         opacity: 0.75;
     }
+
+    .ddc_pb_file-ext-faint {
+        color: var(--text-faint, rgba(255, 255, 255, 0.4));
+    }
 }
 
 .ddc_pb_priorities-visible .ddc_pb_note-card-base {

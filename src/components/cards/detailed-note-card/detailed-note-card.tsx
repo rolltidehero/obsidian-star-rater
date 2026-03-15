@@ -2,7 +2,7 @@ import './detailed-note-card.scss';
 import { TFile } from "obsidian";
 import * as React from "react";
 import { getFileExcerpt } from "src/logic/file-processes";
-import { getFileDisplayName } from 'src/logic/get-file-display-name';
+import { getFileDisplayNameParts } from 'src/logic/get-file-display-name';
 import { NoteCardBase } from '../note-card-base/note-card-base';
 
 /////////
@@ -13,7 +13,7 @@ interface DetailedNoteCardProps {
 }
 
 export const DetailedNoteCard = (props: DetailedNoteCardProps) => {
-    const name = getFileDisplayName(props.file);
+    const { basename, extension } = getFileDisplayNameParts(props.file);
     const [excerpt, setExcerpt] = React.useState('');
     const [articleRotation] = React.useState(Math.random() * 4 - 2);
     const [titleRotation] = React.useState(Math.random() * 2 - 1);
@@ -36,7 +36,8 @@ export const DetailedNoteCard = (props: DetailedNoteCardProps) => {
                     rotate: titleRotation + 'deg',
                 }}
             >
-                {name}
+                {basename}
+                {extension && <span className="ddc_pb_file-ext-faint">{extension}</span>}
             </h3>
             <p
                 style={{

@@ -108,4 +108,72 @@ describe("getFileDisplayName", () => {
   });
 });
 
+describe("getFileDisplayNameParts", () => {
+  test("returns basename and extension for non-document when showFileExtForNonMdFiles enabled", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: true } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayNameParts } = require("./get-file-display-name");
+      const file = { basename: "document", name: "document.pdf", extension: "pdf" } as any;
+      const result = getFileDisplayNameParts(file);
+      expect(result).toEqual({ basename: "document", extension: ".pdf" });
+    });
+  });
+
+  test("returns basename and null extension for document type", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: true } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayNameParts } = require("./get-file-display-name");
+      const file = { basename: "my-canvas", name: "my-canvas.canvas", extension: "canvas" } as any;
+      const result = getFileDisplayNameParts(file);
+      expect(result).toEqual({ basename: "my-canvas", extension: null });
+    });
+  });
+
+  test("returns basename and null extension when showFileExtForNonMdFiles disabled", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({
+          plugin: { settings: { useAliases: false, showFileExtForNonMdFiles: false } },
+        }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => null,
+      }));
+      const { getFileDisplayNameParts } = require("./get-file-display-name");
+      const file = { basename: "document", name: "document.pdf", extension: "pdf" } as any;
+      const result = getFileDisplayNameParts(file);
+      expect(result).toEqual({ basename: "document", extension: null });
+    });
+  });
+
+  test("returns alias and null extension when useAliases enabled", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./stores", () => ({
+        getGlobals: () => ({ plugin: { settings: { useAliases: true } } }),
+      }));
+      jest.doMock("./frontmatter-processes", () => ({
+        getFileAliases: () => ["Alias Name"],
+      }));
+      const { getFileDisplayNameParts } = require("./get-file-display-name");
+      const file = { basename: "Base", extension: "md" } as any;
+      const result = getFileDisplayNameParts(file);
+      expect(result).toEqual({ basename: "Alias Name", extension: null });
+    });
+  });
+});
+
 

@@ -266,8 +266,8 @@ function insertNoteSettings(containerEl: HTMLElement, refresh: Function) {
 
 	new Setting(sectionEl)
 		.setClass('ddc_pb_setting')
-		.setName('Show file extension for non-markdown files')
-		.setDesc('Display the full filename (including extension) on card titles for non-markdown files (e.g. PDF, images). When off, only the basename without extension is shown.')
+		.setName('Show extension for non-document files')
+		.setDesc('Display the full filename (including extension) for non-document files (e.g. PDF, images). Notes, canvas, and base files always show basename only.')
 		.addToggle((toggle) => {
 			toggle.setValue(plugin.settings.showFileExtForNonMdFiles);
 			toggle.onChange(async (value) => {

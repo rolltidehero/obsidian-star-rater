@@ -7,40 +7,10 @@ import { CardBrowserContext } from 'src/components/card-browser/card-browser';
 import { getGlobals } from 'src/logic/stores';
 import { openFileInBackgroundTab, openFileInSameLeaf } from 'src/logic/file-access-processes';
 import { getFilePrioritySettings } from 'src/logic/frontmatter-processes';
+import { getFileTypeLabel } from 'src/logic/get-file-type-label';
 
 /////////
 /////////
-
-const FILE_TYPE_LABELS: Record<string, string> = {
-    canvas: 'CANVAS',
-    base: 'BASE',
-    pdf: 'PDF',
-    png: 'PNG',
-    jpg: 'JPEG',
-    jpeg: 'JPEG',
-    gif: 'GIF',
-    svg: 'SVG',
-    webp: 'WEBP',
-    avif: 'AVIF',
-    bmp: 'BMP',
-    flac: 'FLAC',
-    m4a: 'M4A',
-    mp3: 'MP3',
-    ogg: 'OGG',
-    wav: 'WAV',
-    webm: 'WEBM',
-    '3gp': '3GP',
-    mkv: 'MKV',
-    mov: 'MOV',
-    mp4: 'MP4',
-    ogv: 'OGV',
-};
-
-function getFileTypeLabel(extension: string): string | null {
-    const ext = (extension ?? '').toLowerCase();
-    if (ext === 'md') return null;
-    return FILE_TYPE_LABELS[ext] ?? ext.toUpperCase();
-}
 
 export interface NoteCardBaseProps {
     file: TFile,
